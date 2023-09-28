@@ -56,10 +56,11 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 ROOT_URLCONF = "config.urls"
 # https://docs.djangoproject.com/en/dev/ref/settings/#wsgi-application
 WSGI_APPLICATION = "config.wsgi.application"
-
+ASGI_APPLICATION = "config.asgi.application"
 # APPS
 # ------------------------------------------------------------------------------
 DJANGO_APPS = [
+    "daphne",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
@@ -85,6 +86,7 @@ THIRD_PARTY_APPS = [
 LOCAL_APPS = [
     "crs_web.users",
     # Your stuff: custom apps go here
+    "chat",
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -107,6 +109,12 @@ AUTH_USER_MODEL = "users.User"
 LOGIN_REDIRECT_URL = "users:redirect"
 # https://docs.djangoproject.com/en/dev/ref/settings/#login-url
 LOGIN_URL = "account_login"
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels.layers.InmemoryChannelLayer',
+    }
+}
 
 # PASSWORDS
 # ------------------------------------------------------------------------------

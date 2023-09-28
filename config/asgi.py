@@ -7,11 +7,17 @@ For more information on this file, see
 https://docs.djangoproject.com/en/dev/howto/deployment/asgi/
 
 """
+from chat.routing import websocket_urlpatterns
 import os
 import sys
 from pathlib import Path
 
+from channels.auth import AuthMiddlewareStack
+from channels.routing import ProtocolTypeRouter, URLRouter
+from channels.security.websocket import AllowedHostsOriginValidator
+
 from django.core.asgi import get_asgi_application
+
 
 # This allows easy placement of apps within the interior
 # crs_web directory.
@@ -31,10 +37,20 @@ django_application = get_asgi_application()
 from config.websocket import websocket_application  # noqa isort:skip
 
 
-async def application(scope, receive, send):
-    if scope["type"] == "http":
-        await django_application(scope, receive, send)
-    elif scope["type"] == "websocket":
-        await websocket_application(scope, receive, send)
-    else:
-        raise NotImplementedError(f"Unknown scope type {scope['type']}")
+# async def application(scope, receive, send):
+#     if scope["type"] == "http":
+#         await django_application(scope, receive, send)
+#     elif scope["type"] == "websocket":
+#         await websocket_application(scope, receive, send)
+#     else:
+#         raise NotImplementedError(f"Unknown scope type {scope['type']}")
+"""The AuthMiddlewareStack will populate the connection’s scope with a reference to the currently authenticated user, similar to how Django’s AuthenticationMiddleware populates the request object of a view function with the currently authenticated user.
+The URLRouter will examine the HTTP path of the connection to route it to a particular consumer, based on the provided url patterns."""
+application = ProtocolTypeRouter(
+    {
+        "http": django_application,
+        "websocket": AllowedHostsOriginValidator(
+            AuthMiddlewareStack(URLRouter(websocket_urlpatterns))
+        ),
+    }
+)

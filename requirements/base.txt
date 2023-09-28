@@ -1,24 +1,172 @@
-python-slugify==8.0.1  # https://github.com/un33k/python-slugify
-Pillow==10.0.1  # https://github.com/python-pillow/Pillow
-rcssmin==1.1.1  # https://github.com/ndparker/rcssmin
-argon2-cffi==23.1.0  # https://github.com/hynek/argon2_cffi
-whitenoise==6.5.0  # https://github.com/evansd/whitenoise
-redis==5.0.0  # https://github.com/redis/redis-py
-hiredis==2.2.3  # https://github.com/redis/hiredis-py
-uvicorn[standard]==0.23.2  # https://github.com/encode/uvicorn
-
-# Django
-# ------------------------------------------------------------------------------
-django==4.2.5  # pyup: < 5.0  # https://www.djangoproject.com/
-django-environ==0.11.2  # https://github.com/joke2k/django-environ
-django-model-utils==4.3.1  # https://github.com/jazzband/django-model-utils
-django-allauth==0.56.1  # https://github.com/pennersr/django-allauth
-django-crispy-forms==2.0  # https://github.com/django-crispy-forms/django-crispy-forms
-crispy-bootstrap5==0.7  # https://github.com/django-crispy-forms/crispy-bootstrap5
-django-compressor==4.4  # https://github.com/django-compressor/django-compressor
-django-redis==5.3.0  # https://github.com/jazzband/django-redis
-# Django REST Framework
-djangorestframework==3.14.0  # https://github.com/encode/django-rest-framework
-django-cors-headers==4.2.0  # https://github.com/adamchainz/django-cors-headers
-# DRF-spectacular for api documentation
-drf-spectacular==0.26.4  # https://github.com/tfranzel/drf-spectacular
+alabaster==0.7.13
+anyio==4.0.0
+appnope==0.1.3
+argon2-cffi==23.1.0
+argon2-cffi-bindings==21.2.0
+asgiref==3.7.2
+astroid==2.15.6
+asttokens==2.4.0
+attrs==23.1.0
+autobahn==23.6.2
+Automat==22.10.0
+Babel==2.12.1
+backcall==0.2.0
+black==23.9.1
+certifi==2023.7.22
+cffi==1.15.1
+cfgv==3.4.0
+channels==4.0.0
+charset-normalizer==3.2.0
+click==8.1.7
+colorama==0.4.6
+constantly==15.1.0
+coverage==7.3.1
+crispy-bootstrap5==0.7
+cryptography==41.0.4
+cssbeautifier==1.14.9
+daphne==4.0.0
+decorator==5.1.1
+defusedxml==0.7.1
+dill==0.3.7
+distlib==0.3.7
+Django==4.2.5
+django-allauth==0.56.1
+django-appconf==1.0.5
+django-compressor==4.4
+django-cors-headers==4.2.0
+django-coverage-plugin==3.1.0
+django-crispy-forms==2.0
+django-debug-toolbar==4.2.0
+django-environ==0.11.2
+django-extensions==3.2.3
+django-model-utils==4.3.1
+django-redis==5.3.0
+django-stubs==4.2.3
+django-stubs-ext==4.2.2
+djangorestframework==3.14.0
+djangorestframework-stubs==3.14.2
+djlint==1.33.0
+dnspython==2.4.2
+docutils==0.20.1
+drf-spectacular==0.26.4
+EditorConfig==0.12.3
+executing==1.2.0
+factory-boy==3.3.0
+Faker==19.6.2
+filelock==3.12.4
+flake8==6.1.0
+flake8-isort==6.1.0
+h11==0.14.0
+hiredis==2.2.3
+html-tag-names==0.1.2
+html-void-elements==0.1.0
+httptools==0.6.0
+hyperlink==21.0.0
+identify==2.5.29
+idna==3.4
+imagesize==1.4.1
+incremental==22.10.0
+inflection==0.5.1
+iniconfig==2.0.0
+ipdb==0.13.13
+ipython==8.15.0
+isort==5.12.0
+jedi==0.19.0
+Jinja2==3.1.2
+jsbeautifier==1.14.9
+json5==0.9.14
+jsonschema==4.19.1
+jsonschema-specifications==2023.7.1
+lazy-object-proxy==1.9.0
+livereload==2.6.3
+MarkupSafe==2.1.3
+matplotlib-inline==0.1.6
+mccabe==0.7.0
+mypy==1.4.1
+mypy-extensions==1.0.0
+nodeenv==1.8.0
+oauthlib==3.2.2
+packaging==23.1
+parso==0.8.3
+pathspec==0.11.2
+pexpect==4.8.0
+pickleshare==0.7.5
+Pillow==10.0.1
+platformdirs==3.10.0
+pluggy==1.3.0
+pre-commit==3.4.0
+prompt-toolkit==3.0.39
+psycopg==3.1.9
+psycopg-c==3.1.9
+psycopg2==2.9.7
+ptyprocess==0.7.0
+pure-eval==0.2.2
+pyasn1==0.5.0
+pyasn1-modules==0.3.0
+pycodestyle==2.11.0
+pycparser==2.21
+pyflakes==3.1.0
+Pygments==2.16.1
+PyJWT==2.8.0
+pylint==2.17.5
+pylint-django==2.5.3
+pylint-plugin-utils==0.8.2
+pymongo==4.5.0
+pyOpenSSL==23.2.0
+pytest==7.4.2
+pytest-django==4.5.2
+pytest-sugar==0.9.7
+python-dateutil==2.8.2
+python-dotenv==1.0.0
+python-slugify==8.0.1
+python3-openid==3.2.0
+pytz==2023.3.post1
+PyYAML==6.0.1
+rcssmin==1.1.1
+redis==5.0.0
+referencing==0.30.2
+regex==2023.8.8
+requests==2.31.0
+requests-oauthlib==1.3.1
+rjsmin==1.2.1
+rpds-py==0.10.3
+service-identity==23.1.0
+six==1.16.0
+sniffio==1.3.0
+snowballstemmer==2.2.0
+Sphinx==7.2.6
+sphinx-autobuild==2021.3.14
+sphinxcontrib-applehelp==1.0.7
+sphinxcontrib-devhelp==1.0.5
+sphinxcontrib-htmlhelp==2.0.4
+sphinxcontrib-jsmath==1.0.1
+sphinxcontrib-qthelp==1.0.6
+sphinxcontrib-serializinghtml==1.1.9
+sqlparse==0.4.4
+stack-data==0.6.2
+termcolor==2.3.0
+text-unidecode==1.3
+tomlkit==0.12.1
+tornado==6.3.3
+tqdm==4.66.1
+traitlets==5.10.0
+Twisted==23.8.0
+txaio==23.1.1
+types-pytz==2023.3.1.1
+types-PyYAML==6.0.12.11
+types-requests==2.31.0.3
+types-urllib3==1.26.25.14
+typing_extensions==4.8.0
+uritemplate==4.1.1
+urllib3==2.0.5
+uvicorn==0.23.2
+uvloop==0.17.0
+virtualenv==20.24.5
+watchdog==3.0.0
+watchfiles==0.20.0
+wcwidth==0.2.6
+websockets==11.0.3
+Werkzeug==2.3.7
+whitenoise==6.5.0
+wrapt==1.15.0
+zope.interface==6.0
