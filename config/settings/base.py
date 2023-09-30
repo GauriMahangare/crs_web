@@ -57,6 +57,14 @@ ROOT_URLCONF = "config.urls"
 # https://docs.djangoproject.com/en/dev/ref/settings/#wsgi-application
 WSGI_APPLICATION = "config.wsgi.application"
 ASGI_APPLICATION = "config.asgi.application"
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("127.0.0.1", 6379)],
+        },
+    },
+}
 # APPS
 # ------------------------------------------------------------------------------
 DJANGO_APPS = [
@@ -109,12 +117,6 @@ AUTH_USER_MODEL = "users.User"
 LOGIN_REDIRECT_URL = "users:redirect"
 # https://docs.djangoproject.com/en/dev/ref/settings/#login-url
 LOGIN_URL = "account_login"
-
-CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'channels.layers.InmemoryChannelLayer',
-    }
-}
 
 # PASSWORDS
 # ------------------------------------------------------------------------------

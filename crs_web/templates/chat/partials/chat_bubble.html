@@ -1,0 +1,150 @@
+{% comment %} <div id="chat" class="d-grid gap-2 col-6 mx-auto d-md-flex justify-content-md-end">
+    <div id="chat_icon">
+        <button type="button" class="btn btn-success btn-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-chat-right-dots" viewBox="0 0 16 16">
+            <path d="M2 1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h9.586a2 2 0 0 1 1.414.586l2 2V2a1 1 0 0 0-1-1H2zm12-1a2 2 0 0 1 2 2v12.793a.5.5 0 0 1-.854.353l-2.853-2.853a1 1 0 0 0-.707-.293H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h12z"></path>
+            <path d="M5 6a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm4 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm4 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"></path>
+            </svg>
+            <br>ChatPal</br>
+        </button>
+    </div>
+    <div id="chat_welcome" class="hidden">
+        <div class="input-group">
+            <input type="text" class="form-control" placeholder="How may I help you?" aria-label="chat window">
+            <button class="btn btn-outline-secondary" type="button">Button</button>
+          </div>
+    </div>
+    <div class="col-md-8 col-lg-6 col-xl-5">
+
+        <div class="card" id="chat1" style="border-radius: 15px;">
+          <div class="card-header d-flex justify-content-between align-items-center p-3 bg-info text-white border-bottom-0" style="border-top-left-radius: 15px; border-top-right-radius: 15px;">
+            <i class="fas fa-angle-left"></i>
+            <p class="mb-0 fw-bold">Live chat</p>
+            <i class="fas fa-times"></i>
+          </div>
+          <div class="card-body">
+
+            <div class="d-flex flex-row justify-content-start mb-4">
+              <img src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava1-bg.webp" alt="avatar 1" style="width: 45px; height: 100%;">
+              <div class="p-3 ms-3" style="border-radius: 15px; background-color: rgba(57, 192, 237,.2);">
+                <p class="small mb-0">Hello and thank you for visiting MDBootstrap. Please click the video below.</p>
+              </div>
+            </div>
+
+            <div class="d-flex flex-row justify-content-end mb-4">
+              <div class="p-3 me-3 border" style="border-radius: 15px; background-color: #fbfbfb;">
+                <p class="small mb-0">Thank you, I really like your product.</p>
+              </div>
+              <img src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava2-bg.webp" alt="avatar 1" style="width: 45px; height: 100%;">
+            </div>
+
+            <div class="d-flex flex-row justify-content-start mb-4">
+              <img src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava1-bg.webp" alt="avatar 1" style="width: 45px; height: 100%;">
+              <div class="ms-3" style="border-radius: 15px;">
+                <div class="bg-image">
+                  <img src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/screenshot1.webp" style="border-radius: 15px;" alt="video">
+                  <a href="#!">
+                    <div class="mask"></div>
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <div class="d-flex flex-row justify-content-start mb-4">
+              <img src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava1-bg.webp" alt="avatar 1" style="width: 45px; height: 100%;">
+              <div class="p-3 ms-3" style="border-radius: 15px; background-color: rgba(57, 192, 237,.2);">
+                <p class="small mb-0">...</p>
+              </div>
+            </div>
+
+            <div class="form-outline">
+              <textarea class="form-control" id="textAreaExample" rows="4" data-gramm="false" wt-ignore-input="true"></textarea>
+              <label class="form-label" for="textAreaExample" style="margin-left: 0px;">Type your message</label>
+            <div class="form-notch"><div class="form-notch-leading" style="width: 9px;"></div><div class="form-notch-middle" style="width: 120px;"></div><div class="form-notch-trailing"></div></div></div>
+
+          </div>
+        </div>
+
+      </div>
+
+</div> {% endcomment %}
+
+{% comment %} THis is from chat gpt {% endcomment %}
+
+     <!-- Chat Button -->
+     <button id="open-chat-button" class="btn btn-success btn-lg chat-button" data-bs-toggle="modal" data-bs-target="#chatModal">
+        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-chat-right-dots" viewBox="0 0 16 16">
+            <path d="M2 1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h9.586a2 2 0 0 1 1.414.586l2 2V2a1 1 0 0 0-1-1H2zm12-1a2 2 0 0 1 2 2v12.793a.5.5 0 0 1-.854.353l-2.853-2.853a1 1 0 0 0-.707-.293H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h12z"></path>
+            <path d="M5 6a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm4 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm4 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"></path>
+        </svg>
+        <p>Ask me!! </p>
+    </button>
+
+    <!-- Chat Modal -->
+    <div class="modal fade" id="chatModal" tabindex="-1" aria-labelledby="chatModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="chatModalLabel">Ask CineGenius</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Chat window content goes here -->
+                    <div class="chat-messages">
+                        <!-- Messages will be displayed here -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    {% comment %} <div class="message-input"> {% endcomment %}
+                        <input type="text" id="message-input" class="form-control" placeholder="Type a message...">
+                    {% comment %} </div> {% endcomment %}
+                    {% comment %} <div class="message-send"> {% endcomment %}
+                        <button id="send-button" class="btn btn-primary">Send</button>
+                    {% comment %} </div> {% endcomment %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% comment %} test {% endcomment %}
+
+    <textarea id="chat-log" cols="100" rows="20"></textarea><br>
+    <input id="chat-message-input" type="text" size="100"><br>
+    <input id="chat-message-submit" type="button" value="Send">
+    {{ room_name|json_script:"room-name" }}
+    <script>
+        const roomName = JSON.parse(document.getElementById('room-name').textContent);
+
+        const chatSocket = new WebSocket(
+            'ws://'
+            + window.location.host
+            + '/ws/chat/'
+            + roomName
+            + '/'
+        );
+
+        chatSocket.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+            document.querySelector('#chat-log').value += (data.message + '\n');
+        };
+
+        chatSocket.onclose = function(e) {
+            console.error('Chat socket closed unexpectedly');
+        };
+
+        document.querySelector('#chat-message-input').focus();
+        document.querySelector('#chat-message-input').onkeyup = function(e) {
+            if (e.key === 'Enter') {  // enter, return
+                document.querySelector('#chat-message-submit').click();
+            }
+        };
+
+        document.querySelector('#chat-message-submit').onclick = function(e) {
+            const messageInputDom = document.querySelector('#chat-message-input');
+            const message = messageInputDom.value;
+            chatSocket.send(JSON.stringify({
+                'message': message
+            }));
+            messageInputDom.value = '';
+        };
+    </script>

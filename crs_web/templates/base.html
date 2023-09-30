@@ -31,13 +31,14 @@
   <link href="{% static 'css/project.css' %}" rel="stylesheet" />
 {% endcompress %}
 
-
 {% endblock css %}
 <!-- Le javascript
     ================================================== -->
 {# Placed at the top of the document so pages load faster with defer #}
 {% block javascript %}
 
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
 
 <!-- Bootstrap JS -->
 <script defer
@@ -46,7 +47,11 @@
         crossorigin="anonymous"
         referrerpolicy="no-referrer"></script>
 <!-- Your stuff: Third-party javascript libraries go here -->
-
+<script src="https://use.fontawesome.com/releases/v5.15.1/js/all.js" crossorigin="anonymous"></script>
+<!-- Google fonts-->
+<link href="https://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css" />
+<link href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic" rel="stylesheet" type="text/css" />
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
 <!-- place project specific Javascript in this file -->
 
@@ -136,5 +141,7 @@
     </script>
     {% endcomment %}
   {% endblock inline_javascript %}
+
+  {% include 'chat/partials/chat_bubble.html'%}
 </body>
 </html>
