@@ -1,36 +1,65 @@
 # chat/consumers.py
 import json
+import logging
 
 from channels.generic.websocket import AsyncWebsocketConsumer
+from .models import Message, Conversation
+from channels.db import database_sync_to_async
+
+logger = logging.getLogger(__name__)
 
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
-        self.room_name = self.scope["url_route"]["kwargs"]["room_name"]
-        self.room_group_name = f"chat_{self.room_name}"
-
-        # Join room group
-        await self.channel_layer.group_add(self.room_group_name, self.channel_name)
-
+        # print(self.scope["user"])
+        # # print(self.scope["sessionid"])
+        # print(self.scope["session"])
+        # print(self.scope["cookies"]["csrftoken"])
+        # print("session id: " + self.scope["cookies"]["sessionid"])
         await self.accept()
 
     async def disconnect(self, close_code):
-        # Leave room group
-        await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
+        print("Disconnected")
+        pass
 
     # Receive message from WebSocket
     async def receive(self, text_data):
+        # print("in recive message!!!")
+        print(text_data)
+        print(self.scope)
+
         text_data_json = json.loads(text_data)
-        message = text_data_json["message"]
+        message = text_data_json["message"]["message"]
+        conversationId = text_data_json["message"]["conversationId"]
+        print("message" + message)
+        print("conversationId" + conversationId)
+        sent_by = "Human"
+        # save received message to db
+        await self.save_message(message, sent_by, conversationId)
 
-        # Send message to room group
-        await self.channel_layer.group_send(
-            self.room_group_name, {"type": "chat.message", "message": message}
-        )
+        # process Machine learning
+        bot_response = f'Hello there.. You said - {message}'
 
-    # Receive message from room group
-    async def chat_message(self, event):
-        message = event["message"]
+        await self.send(text_data=json.dumps({
+            'message': bot_response
+        }))
+        sent_by = "AI"
+        await self.save_message(bot_response, sent_by, conversationId)
 
-        # Send message to WebSocket
-        await self.send(text_data=json.dumps({"message": message}))
+    @database_sync_to_async
+    def save_message(self, text, sent_by, conversationId):
+        message = Message()
+        message.body = text
+        message.sent_by = sent_by
+        message.created_by = self.scope["user"]
+        message.session_id = self.scope["cookies"]["sessionid"]
+        conversation = Conversation.objects.get(pk=conversationId)
+        message.conversationId = conversation
+
+        headers = " ".join(str(x) for x in self.scope["headers"])
+        message.context_data = {  # type: ignore
+            'type': self.scope["type"],
+            'headers': headers,
+            'cookies': self.scope["cookies"],
+        }
+        message.save()
