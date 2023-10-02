@@ -33,7 +33,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             await self.save_message(bot_response, sent_by, conversationId)
 
             # Close the WebSocket connection for this client
-            await self.close(wasClean=True, code=1000, reason='Session closed gracefully')
+            await self.close(code=1000, reason="Session closed gracefully")
         else:
             # save received message to db
             await self.save_message(message, sent_by, conversationId)
