@@ -2,8 +2,10 @@
 Base settings to build other settings files upon.
 """
 from pathlib import Path
-
+import os
 import environ
+
+USE_DOCKER = os.environ.get('USE_DOCKER') == 'true'
 
 BASE_DIR = Path(__file__).resolve(strict=True).parent.parent.parent
 # crs_web/
