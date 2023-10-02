@@ -141,7 +141,8 @@
     </script>
     {% endcomment %}
   {% endblock inline_javascript %}
-
-  {% include 'chat/partials/chat_bubble.html'%}
+  {% if request.user.is_authenticated %}
+    {% include 'chat/partials/chat_bubble.html'%}
+  {% endif %}
 </body>
 </html>

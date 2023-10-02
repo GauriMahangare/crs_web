@@ -18,14 +18,10 @@ function create_UUID4() {
 
 function getCookie(name) {
   let cookieValue = null;
-  console.log(document.cookie);
   if (document.cookie && document.cookie !== "") {
     const cookies = document.cookie.split(";");
-    console.log(cookies);
-    console.log(cookies.length);
     for (let i = 0; i < cookies.length; i++) {
       const cookie = cookies[i].trim();
-      console.log(cookie);
       // Does this cookie string begin with the name we want?
       if (cookie.substring(0, name.length + 1) === name + "=") {
         cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
@@ -35,8 +31,6 @@ function getCookie(name) {
   }
   return cookieValue;
 }
-const csrftoken = getCookie("csrftoken");
-console.log(csrftoken);
 
 var conversationId = "";
 var messageText = "";
@@ -45,8 +39,6 @@ var roomName = create_UUID4();
 var chatURL = "ws://" + window.location.host + "/ws/chat/" + roomName + "/";
 var convURL =
   "http://" + window.location.host + "/chat/ajax/create-conversation/";
-
-console.log(convURL);
 
 document.addEventListener("DOMContentLoaded", function () {
   const messageInput = document.getElementById("message-input");
@@ -73,7 +65,6 @@ Code for talk to me button
       })
         .then((response) => response.json())
         .then((data) => {
-          console.log(data);
           conversationId = data.id;
         });
     }

@@ -16,15 +16,12 @@ def create_conversation(request):
     '''
     View to handle ajax request to create conversations
     '''
-    print("inside create_conversation")
     is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
     if is_ajax:
         if request.method == 'POST':
             data = json.load(request)
             payload = data.get('payload')
             header = data.get('header')
-            print(payload)
-            print(data)
             conversation = Conversation(created_by=request.user,
                                         url="",
                                         context_data={'header': header})
