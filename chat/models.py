@@ -2,6 +2,10 @@ import uuid
 from django.db import models
 from django.contrib.auth import get_user_model
 from django.utils.translation import gettext_lazy as _
+
+from agent.models import Agent
+from intent.models import Intent, IntentResponseEvent, IntentEventAction, ResponseText
+
 # Create your models here.
 User = get_user_model()
 
@@ -31,6 +35,7 @@ class Conversation(models.Model):
         blank=True,
         null=True,
     )
+    with_agent = models.ForeignKey(Agent, null=True, on_delete=models.SET_NULL,)
     context_data = models.JSONField(null=True)
 
     class Meta:
@@ -58,6 +63,7 @@ class Message(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(User, null=True,
                                    on_delete=models.SET_NULL, related_name="message_added_by")
+    modified_at = models.DateTimeField(auto_now=True)
     modified_by = models.ForeignKey(
         User, null=True, on_delete=models.SET_NULL, related_name="message_modified_by"
     )
@@ -74,3 +80,28 @@ class Message(models.Model):
 
     def __str__(self) -> str:
         return f'{self.sent_by}'
+
+
+class MessageFlow(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    created_by = models.ForeignKey(User, null=True,
+                                   on_delete=models.SET_NULL, related_name="messageFlow_added_by")
+    modified_at = models.DateTimeField(auto_now=True)
+    modified_by = models.ForeignKey(
+        User, null=True, on_delete=models.SET_NULL, related_name="messageFlow_modified_by"
+    )
+    message = models.ForeignKey(Message, null=True, on_delete=models.CASCADE)
+    intent = models.ForeignKey(Intent, null=True, on_delete=models.SET_NULL)
+    intentResponseEvent = models.ForeignKey(IntentResponseEvent, null=True, on_delete=models.SET_NULL)
+    IntentEventAction = models.ForeignKey(IntentEventAction, null=True, on_delete=models.SET_NULL)
+    ResponseText = models.ForeignKey(ResponseText, null=True, on_delete=models.SET_NULL)
+    entity_data = models.JSONField(null=True, blank=True)
+
+    class Meta:
+        verbose_name = "Message Flow"
+        verbose_name_plural = "Message Flow"
+        ordering = ('created_at',)
+
+    def __str__(self) -> str:
+        return f'{self.id}'

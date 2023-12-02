@@ -3,6 +3,8 @@ import json
 import logging
 
 from channels.generic.websocket import AsyncWebsocketConsumer
+
+from intent.models import IntentExample
 from .models import Message, Conversation
 from channels.db import database_sync_to_async
 
@@ -23,7 +25,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         message = text_data_json["message"]["message"]
         conversationId = text_data_json["message"]["conversationId"]
         sent_by = "Human"
-        if message == 'disconnect_me':
+        if message == 'quit':
             bot_response = f'Goodbye and Have a nice day {self.scope["user"].name}'
             await self.send(text_data=json.dumps({
                 'message': bot_response
@@ -33,7 +35,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             await self.save_message(bot_response, sent_by, conversationId)
 
             # Close the WebSocket connection for this client
-            await self.close(code=1000, reason="Session closed gracefully")
+            await self.close(code=1000,)
         else:
             # save received message to db
             await self.save_message(message, sent_by, conversationId)
@@ -42,6 +44,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             #
             # Add model call here!!
             #
+            await self.identifyIntent(message, sent_by, conversationId)
 
             bot_response = f'Hello there.. {self.scope["user"].name} said - {message}'
 
@@ -72,3 +75,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
             'cookies': self.scope["cookies"],
         }
         message.save()
+
+    @database_sync_to_async
+    def identifyIntent(self, text, sent_by, conversationId):
+        '''
+        Function to identify intents
+        '''
+        text = text.casefold()
+        intent_examples_qs = IntentExample.objects.all()
+        for example in intent_examples_qs:
+            ex_text = example.example_text

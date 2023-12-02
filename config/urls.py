@@ -8,6 +8,10 @@ from django.views.generic import TemplateView
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from rest_framework.authtoken.views import obtain_auth_token
 
+admin.site.site_header = "CRS Admin"
+admin.site.site_title = "CRS Admin"
+admin.site.index_title = "CRS Admin"
+
 urlpatterns = [
     path("", TemplateView.as_view(template_name="pages/home.html"), name="home"),
     path("about/", TemplateView.as_view(template_name="pages/about.html"), name="about"),
@@ -18,6 +22,9 @@ urlpatterns = [
     path("accounts/", include("allauth.urls")),
     # Your stuff: custom urls includes go here
     path("chat/", include("chat.urls")),
+    path("agent/", include("agent.urls")),
+    path("entity/", include("entity.urls")),
+    path("intent/", include("intent.urls")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 if settings.DEBUG:
     # Static file serving when using Gunicorn + Uvicorn for local web socket development

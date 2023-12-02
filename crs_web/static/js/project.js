@@ -61,7 +61,7 @@ Code for talk to me button
           "X-CSRFTOKEN": getCookie("csrftoken"),
           "Content-type": "application/json",
         },
-        body: JSON.stringify({ payload: "data to send" }),
+        body: JSON.stringify({ agentId: 1 }),
       })
         .then((response) => response.json())
         .then((data) => {
