@@ -92,6 +92,7 @@ THIRD_PARTY_APPS = [
     "corsheaders",
     "drf_spectacular",
     "import_export",
+    "django_select2",
 ]
 
 LOCAL_APPS = [
@@ -101,6 +102,7 @@ LOCAL_APPS = [
     "agent",
     "intent",
     "entity",
+    "movies",
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS

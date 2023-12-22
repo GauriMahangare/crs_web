@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Home{% endblock title %}
+{% block content %}
+<!-- Top trending -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Supervised ML Search movies</h1>
+    </div>
+    <div class="row">
+        <div class="col-xl-6 col-md-6 mb-4">
+            <label for="exampleDataList" class="form-label">Search similar movies</label>
+            <input class="form-control" list="datalistOptions" id="exampleDataList" placeholder="Type to search...">
+            <datalist id="datalistOptions">
+                <option value="Batman">
+                <option value="Superman">
+                <option value="Spiderman">
+                <option value="Thor">
+                <option value="Wonderwoman">
+            </datalist>
+        </div>
+    </div>
+
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Movies matching to your search..</h1>
+    </div>
+    <div class="row">
+        <!-- Movie # 1 -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <img src="{% static 'images/robot.png' %}" class="card-img-top" width="300" height="300" alt="...">
+                <div class="card-body">
+                    <h5 class="card-title">Card title 1 </h5>
+                    <p class="card-text">Plot thickens.. </p>
+                    <a href="#" class="btn btn-primary">Read more..</a>
+                </div>
+            </div>
+        </div>
+        <!-- Movie # 2 -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <img src="{% static 'images/robot.png' %}" class="card-img-top" width="300" height="300" alt="...">
+                <div class="card-body">
+                <h5 class="card-title">Card title 2 </h5>
+                <p class="card-text">Plot thickens.. </p>
+                <a href="#" class="btn btn-primary">Read more..</a>
+                </div>
+            </div>
+        </div>
+        <!-- Movie # 3 -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <img src="{% static 'images/robot.png' %}" class="card-img-top" width="300" height="300" alt="...">
+                <div class="card-body">
+                <h5 class="card-title">Card title 3 </h5>
+                <p class="card-text">Plot thickens.. </p>
+                <a href="#" class="btn btn-primary">Read more..</a>
+                </div>
+            </div>
+        </div>
+        <!-- Movie # 4 -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <img src="{% static 'images/robot.png' %}" class="card-img-top" width="300" height="300" alt="...">
+                <div class="card-body">
+                <h5 class="card-title">Card title 4 </h5>
+                <p class="card-text">Plot thickens.. </p>
+                <a href="#" class="btn btn-primary">Read more..</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+{% endblock content %}
+

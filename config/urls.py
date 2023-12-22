@@ -15,6 +15,8 @@ admin.site.index_title = "CRS Admin"
 urlpatterns = [
     path("", TemplateView.as_view(template_name="pages/home.html"), name="home"),
     path("about/", TemplateView.as_view(template_name="pages/about.html"), name="about"),
+    path("sup-recommend/", TemplateView.as_view(template_name="pages/recommendation_supervised.html"), name="sup-recommend"),
+    path("dl-recommend/", TemplateView.as_view(template_name="pages/recommendation_deeplearning.html"), name="dl-recommend"),
     # Django Admin, use {% url 'admin:index' %}
     path(settings.ADMIN_URL, admin.site.urls),
     # User management
@@ -25,6 +27,8 @@ urlpatterns = [
     path("agent/", include("agent.urls")),
     path("entity/", include("entity.urls")),
     path("intent/", include("intent.urls")),
+    path("movie/", include("movies.urls")),
+    path("select2/", include("django_select2.urls")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 if settings.DEBUG:
     # Static file serving when using Gunicorn + Uvicorn for local web socket development

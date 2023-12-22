@@ -6,7 +6,18 @@ let chatSocket = null;
 /*
 Functions
 */
+function validateForm() {
+  var selectElement = document.getElementById("movie-input");
 
+  // Check if an option other than the default is selected
+  if (selectElement.value.trim()) {
+    alert("Please select an option before submitting the form.");
+    return false; // Prevent form submission
+  }
+
+  // Continue with form submission if an option is selected
+  return true;
+}
 function create_UUID4() {
   return "10000000-1000-4000-8000-100000000000".replace(/[018]/g, (c) =>
     (
@@ -40,10 +51,14 @@ var chatURL = "ws://" + window.location.host + "/ws/chat/" + roomName + "/";
 var convURL =
   "http://" + window.location.host + "/chat/ajax/create-conversation/";
 
+var recURL = "http://" + window.location.host + "/movie/ajax/recommend-movies/";
+
 document.addEventListener("DOMContentLoaded", function () {
   const messageInput = document.getElementById("message-input");
   const sendButton = document.getElementById("send-button");
   const chatMessages = document.querySelector(".chat-messages");
+  const recommendButton = document.getElementById("recommend-button");
+  const recommendMovie = document.getElementById("recommended-movies");
   /*
 Code for talk to me button
 */
@@ -145,6 +160,66 @@ Code for talk to me button
   messageInput.addEventListener("keydown", function (event) {
     if (event.key === "Enter") {
       sendButton.click();
+    }
+  });
+  // movieInput.addEventListener("input", function () {
+  //   var movieInputValue = movieInput.value;
+  //   console.log(movieInputValue);
+  //   const movieTitle = movieInputValue.trim();
+  // });
+  recommendButton.addEventListener("click", function (event) {
+    const movieInputValue = document.getElementById("movie-input");
+    console.log(movieInputValue.value);
+    var movieTitle = movieInputValue.value.trim();
+    console.log(movieTitle);
+    if (movieTitle !== "") {
+      fetch(recURL, {
+        method: "POST",
+        credentials: "same-origin",
+        headers: {
+          "X-Requested-With": "XMLHttpRequest",
+          "X-CSRFTOKEN": getCookie("csrftoken"),
+          "Content-type": "application/json",
+        },
+        body: JSON.stringify({ movieTitle: movieTitle }),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          rec_movie_list = data.list;
+          if (rec_movie_list !== "") {
+            var parentDiv = document.getElementById("recommended-movies");
+            try {
+              var childDivs = parentDiv.getElementsByClassName("movie");
+              while (childDivs.length > 0) {
+                childDivs[0].remove();
+              }
+            } catch (error) {
+              // Code to handle the exception
+              console.error("An error occurred:", error.message);
+            }
+            const recommendationLableDiv =
+              document.getElementById("movie-search-title");
+            recommendationLableDiv.innerHTML = `
+            <h1 class="h3 mb-0 text-gray-800">Movies matching to your search..</h1>`;
+            for (let i = 0; i < Object.entries(rec_movie_list).length; i++) {
+              const movieDiv = document.createElement("div");
+              movieDiv.classList.add("movie");
+              imdb_url =
+                "https://www.imdb.com/title/" + rec_movie_list[i]["imdb_id"];
+              movieDiv.innerHTML = `
+              <a href=${imdb_url} target="_blank" class="btn btn-light btn-icon-split">
+                                        <span class="icon text-gray-600">
+                                            <i class="fas fa-arrow-right"></i>
+                                        </span>
+                                        <span class="text">${rec_movie_list[i]["title"]}</span>
+              </a>
+                              `;
+              recommendMovie.appendChild(movieDiv);
+            }
+          }
+        });
+    } else {
+      alert("Please select an option before submitting the form.");
     }
   });
 });

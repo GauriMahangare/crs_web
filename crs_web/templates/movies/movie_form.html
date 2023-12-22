@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Home{% endblock title %}
+{% block content %}
+<!-- Top trending -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Content Based Movie Search</h1>
+    </div>
+    <div class="row" id="movie-search-input">
+        <form method="POST" onsubmit="return validateForm()">
+            {% csrf_token %}
+            <div class="col-xl-6 col-md-6 mb-4">
+                <label for="movieDataList" class="form-label" id="movieDataList">Search similar movies</label>
+                <input class="form-control" list="datalistOptions" id="movie-input" placeholder="Select an option..." required>
+                <datalist id="datalistOptions">
+                    {% comment %} <option value={{ movie_list }}> {% endcomment %}
+                    {% for value in movie_list %}
+                        <option value="{{ value }}"</option>
+                    {% endfor %}
+                </datalist>
+            </div>
+            <div class="col-xl-6 col-md-6 mb-4">
+                <a href="#" id="recommend-button" class="btn btn-primary btn-icon-split btn-m-auto">
+                    <span class="icon text-white-50">
+                        <i class="fas fa-flag"></i>
+                    </span>
+                    <span class="text">Recommend Similar Movies</span>
+                </a>
+            </div>
+        </form>
+    </div>
+
+
+    <div class="d-sm-flex align-items-center justify-content-between mb-4" id="movie-search-title">
+    </div>
+    <div class="row" id=recommended-movies>
+    </div>
+
+{% endblock content %}
