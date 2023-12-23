@@ -75,8 +75,10 @@ select.form-control {
     // in IE and (under certain conditions) Edge, as it looks bad and cannot be made to
     // match the appearance of the native widget.
     // See https://github.com/twbs/bootstrap/issues/19398.
-    color: $input-color;
-    background-color: $input-bg;
+    // color: $input-color;
+    // background-color: $input-bg;
+    color: aqua;
+    background-color: black;
   }
 }
 

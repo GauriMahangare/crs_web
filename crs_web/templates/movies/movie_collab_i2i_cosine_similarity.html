@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Home{% endblock title %}
+{% block content %}
+<!-- Top trending -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Collaborative Filtering - item to item based on Cosine Similarity</h1>
+    </div>
+    <div class="row" id="movie-search-input">
+        <form method="POST" onsubmit="return validateForm()">
+            {% csrf_token %}
+            <div class="col-xl-6 col-md-6 mb-4">
+                <label for="movieDataList" class="form-label" id="movieDataList">Search similar movies</label>
+                <input class="form-control" list="datalistOptions" id="movie-input" placeholder="Select an option..." required>
+                <datalist id="datalistOptions">
+                    {% for value in movie_list %}
+                        <option value="{{ value }}"</option>
+                    {% endfor %}
+                </datalist>
+                {% comment %} <select class="form-control" aria-label="Search similar movies">
+                    {% for value in movie_list %}
+                        <option class="select form-control" value="{{ value }}"</option>
+                    {% endfor %}
+                </select> {% endcomment %}
+            </div>
+            <div class="col-xl-6 col-md-6 mb-4">
+                <a href="#" id="recommend-collab-cs-i2i-button" class="btn btn-warning btn-icon-split btn-m-auto">
+                    <span class="icon text-white-50">
+                        <i class="fas fa-flag"></i>
+                    </span>
+                    <span class="text">Recommend Similar Movies based on above movie</span>
+                </a>
+            </div>
+        </form>
+    </div>
+
+
+    <div class="d-sm-flex align-items-center justify-content-between mb-4" id="movie-search-title">
+    </div>
+    <div class="row" id=recommended-collab-cs-i2i-movies>
+    </div>
+
+{% endblock content %}

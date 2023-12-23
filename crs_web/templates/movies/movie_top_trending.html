@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Home{% endblock title %}
+{% block content %}
+    <!-- Page Heading -->
+      <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Dashboard</h1>
+        <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i
+                class="fas fa-download fa-sm text-white-50"></i> Refresh</a>
+      </div>
+      <div class="row">
+        <!-- Number of movies -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Number of movies </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">10,232,298</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-mask fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Movies with reviews -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Total Ratings</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">100,000</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-sticky-note fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Movies with summary -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Movies with ratings
+                            </div>
+                            <div class="row no-gutters align-items-center">
+                                <div class="col-auto">
+                                    <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">1663</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Registered users -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Number of registered users</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">943</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-user-check fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+      </div>
+        <!-- Top trending -->
+        <div class="d-sm-flex align-items-center justify-content-between mb-4">
+            <h1 class="h3 mb-0 text-gray-800">Top Trending movies</h1>
+        </div>
+<!-- Top trending -->
+        <div class="row" id="genre-select-input">
+            <form method="POST" onsubmit="return validateForm()">
+                {% csrf_token %}
+                <div class="col-xl-6 col-md-6 mb-4">
+                    <label for="genreList" class="form-label" id="genreDataList">Select Genre</label>
+                    <input class="form-control" list="datalistOptions" id="genre-input" placeholder="Select an option..." required>
+                    <datalist id="datalistOptions">
+                        {% comment %} <option value={{ movie_list }}> {% endcomment %}
+                        {% for value in genres_list %}
+                            <option value="{{ value }}"</option>
+                        {% endfor %}
+                    </datalist>
+                </div>
+                <div class="col-xl-6 col-md-6 mb-4">
+                    <a href="#" id="top-trending-button" class="btn btn-danger btn-icon-split btn-m-auto">
+                        <span class="icon text-white-50">
+                            <i class="fas fa-flag"></i>
+                        </span>
+                        <span class="text">Get top trending movies</span>
+                    </a>
+                </div>
+            </form>
+        </div>
+
+
+        <div class="d-sm-flex align-items-center justify-content-between mb-4" id="top-trending-title">
+        </div>
+        <div class="row" id=top-trending-movies>
+        </div>
+{% endblock content %}
+

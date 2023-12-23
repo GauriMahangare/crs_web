@@ -1904,9 +1904,46 @@ input[type="month"].form-control {
   appearance: none;
 }
 
-select.form-control:focus::-ms-value {
+/* select.form-control:focus::-ms-value {
   color: #6e707e;
   background-color: #fff;
+} */
+
+select.form-control:focus::-ms-value  {
+  z-index: 1;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  padding: 10px;
+  font-size: 16px;
+  border-radius: 4px;
+  width: 200px;
+  outline: none;
+  cursor: pointer;
+}
+option.select.form-control {
+  font-weight: normal;
+  display: block;
+  min-height: 1.2em;
+  padding: 0px 2px 1px;
+  white-space: nowrap;
+}
+
+/* Style for the arrow icon (caret) */
+select.form-control::after {
+  content: '\25BC'; /* Unicode character for a down arrow ▼ */
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  transform: translateY(-50%);
+  pointer-events: none; /* Ensure the arrow does not interfere with clicking the select */
+}
+
+/* Style when the select is focused or hovered */
+select.form-control:focus, select:hover {
+  border-color: #666;
 }
 
 .form-control-file,
