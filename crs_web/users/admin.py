@@ -3,9 +3,9 @@ from django.contrib import admin
 from django.contrib.auth import admin as auth_admin
 from django.contrib.auth import get_user_model, decorators
 from django.utils.translation import gettext_lazy as _
-
+from import_export.admin import ImportExportMixin
 from crs_web.users.forms import UserAdminChangeForm, UserAdminCreationForm
-
+from .models import UserProfile
 User = get_user_model()
 
 if settings.DJANGO_ADMIN_FORCE_ALLAUTH:
@@ -47,3 +47,24 @@ class UserAdmin(auth_admin.UserAdmin):
             },
         ),
     )
+
+
+class UserProfileAdmin(ImportExportMixin, admin.ModelAdmin):
+    list_display = [
+        "id",
+        "user_id",
+        "user_email",
+        "gender",
+        "movie_pref_1",
+        "movie_pref_1",
+        "movie_pref_1",
+    ]
+
+    def user_email(self, obj):
+        return obj.user.email
+
+    def user_id(self, obj):
+        return obj.user.pk
+
+
+admin.site.register(UserProfile, UserProfileAdmin)

@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Home{% endblock title %}
+{% block content %}
+<!-- Top trending -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Deep Neural network for ratings prediction</h1>
+    </div>
+    <div class="row" id="user-search-input">
+        <form method="POST" onsubmit="return validateForm()">
+            {% csrf_token %}
+            <div class="col-xl-6 col-md-6 mb-4">
+                <label for="userDataList" class="form-label" id="userDataList">Recommend for user..</label>
+                <input class="form-control" list="datalistOptions" id="user-input" placeholder="Select an option..." required>
+                <datalist id="datalistOptions">
+                    {% for value in user_list %}
+                        <option value="{{ value }}"</option>
+                    {% endfor %}
+                </datalist>
+                {% comment %} <select class="form-control" aria-label="Search similar movies">
+                    {% for value in movie_list %}
+                        <option class="select form-control" value="{{ value }}"</option>
+                    {% endfor %}
+                </select> {% endcomment %}
+            </div>
+            <div class="col-xl-6 col-md-6 mb-4">
+                <a href="#" id="recommend-dnn-rating-button" class="btn btn-success btn-icon-split btn-m-auto">
+                    <span class="icon text-white-50">
+                        <i class="fas fa-flag"></i>
+                    </span>
+                    <span class="text">Recommend movies</span>
+                </a>
+            </div>
+        </form>
+    </div>
+    <div class="d-sm-flex align-items-center justify-content-between mb-4" id="movie-watched-title">
+    </div>
+    <div class="row" id=watched-movies-DNNratings>
+    </div>
+    <hr>
+    <div class="d-sm-flex align-items-center justify-content-between mb-4" id="movie-search-title">
+    </div>
+    <div class="row" id=recommended-dnn-rating-movies>
+    </div>
+
+{% endblock content %}

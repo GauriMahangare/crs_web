@@ -18,9 +18,17 @@ from django import forms
 from django_select2 import forms as s2forms
 import pickle
 import pandas as pd
+import numpy as np
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 import re
+import tensorflow as tf
+from tensorflow.keras.models import Model
+from tensorflow.keras.layers import Input, Embedding, Dense, Dropout, Dot, Flatten, Add
+from tensorflow.keras.regularizers import l2
+from tensorflow.keras.callbacks import EarlyStopping
+from tensorflow.keras.models import load_model
+
 
 logger = logging.getLogger(__name__)
 User = get_user_model()
@@ -54,6 +62,24 @@ users_list_df = pd.read_csv(open(
 ratings_df = pd.read_csv(open(
     "/Users/gauridhumal/Development Projects/UOL-PROJECTs/CRS/DS/crs_ds/data/processed/movieLense/ratings_short.csv", 'r'))
 
+# Models for DNN
+DNN_ratings_model = tf.saved_model.load(
+    "/Users/gauridhumal/Development Projects/UOL-PROJECTs/CRS/DS/crs_ds/models/DNN_ratings_prediction/")
+DNN_ratings_model_df = pd.read_pickle(
+    open("/Users/gauridhumal/Development Projects/UOL-PROJECTs/CRS/DS/crs_ds/models/DNN_ratings_prediction/dnn_ratings_pred_df.pkl", 'rb'))
+DNN_movie2movie_encoded = pd.read_pickle(
+    open("/Users/gauridhumal/Development Projects/UOL-PROJECTs/CRS/DS/crs_ds/models/DNN_ratings_prediction/dnn_movie2movie_encoded.pkl", 'rb'))
+DNN_user2user_encoded = pd.read_pickle(
+    open("/Users/gauridhumal/Development Projects/UOL-PROJECTs/CRS/DS/crs_ds/models/DNN_ratings_prediction/dnn_user2user_encoded.pkl", 'rb'))
+DNN_movie_encoded2movie = pd.read_pickle(
+    open("/Users/gauridhumal/Development Projects/UOL-PROJECTs/CRS/DS/crs_ds/models/DNN_ratings_prediction/dnn_movie_encoded2movie.pkl", 'rb'))
+
+# models for matrix factorisation
+U_reg = pd.read_pickle(
+    open("/Users/gauridhumal/Development Projects/UOL-PROJECTs/CRS/DS/crs_ds/models/matrix_factorisation/user_embedding.pkl", 'rb'))
+V_reg = pd.read_pickle(
+    open("/Users/gauridhumal/Development Projects/UOL-PROJECTs/CRS/DS/crs_ds/models/matrix_factorisation/item_embedding.pkl", 'rb'))
+
 
 def remove_special_characters(text):
     # Define a pattern to keep only alphanumeric characters
@@ -77,10 +103,181 @@ def find_index(movie):
         for found_tuple in found_tuples:
             print(found_tuple)
             print(found_tuple[0])
-        return found_tuple[0]
+        return found_tuples[0]
     else:
         print(f"No tuples containing '{search_value}' found.")
         return None
+
+
+def compute_scores(query_embedding, item_embeddings, measure):
+    """Computes the scores of the candidates given a query.
+    Args:
+      query_embedding: a vector of shape [k], representing the query embedding.
+      item_embeddings: a matrix of shape [N, k], such that row i is the embedding
+        of item i.
+      measure: a string specifying the similarity measure to be used. Can be
+        either DOT or COSINE.
+    Returns:
+      scores: a vector of shape [N], such that scores[i] is the score of item i.
+    """
+    q = query_embedding
+    I = item_embeddings
+    if measure == "COSINE":
+        I = I / np.linalg.norm(I, axis=1, keepdims=True)
+        q = q / np.linalg.norm(q)
+    scores = q.dot(I.T)
+    return scores
+
+
+def user_recommendations(measure, query_embedding, item_embeddings):
+    scores = compute_scores(query_embedding, item_embeddings, measure)
+    score_key = measure+"_" + 'score'
+    df = pd.DataFrame({
+        'score_key': list(scores),
+        'movie_id': movie_list_full_df['imdb_id'],
+        'titles': movie_list_full_df['title'],
+        'genres': movie_list_full_df['genre_tags'],
+    })
+    return df
+
+
+def movie_neighbours(title_substring, measure, k, query_embedding, item_embeddings):
+    # Select the most matching title
+    print(movie_list_full_df.columns)
+    title_substring = remove_special_characters(title_substring).lower().replace(" ", "")
+    print(title_substring)
+    ids = movie_list_full_df[movie_list_full_df['cleaned_title'].str.contains(title_substring)].index.values
+    print(ids)
+    titles = movie_list_full_df.iloc[ids]['title'].values
+    if len(titles) == 0:
+        # raise ValueError("Found no movies with title %s" % title_substring)
+        other_matching_titles = "Found no movies with title %s" % title_substring
+        df = pd.DataFrame()
+        return df, other_matching_titles
+    else:
+        print("Nearest neighbors of : %s." % titles[0])
+        print("[Found more than one matching movie. Other candidates: {}]".format(
+            ", ".join(titles[1:])))
+        other_matching_titles = ", ".join(titles[0:])
+        movie_id = ids[0]
+
+        query_embedding = query_embedding[movie_id]
+    # Calculating dot matrix this the most matched movie with other movie embeddings to find the other matching movies
+        scores = compute_scores(query_embedding, item_embeddings, measure)
+
+        score_key = measure + "_" + "score"
+        # df['score_key'] = list(scores),
+        # df['movie_id'] = movie_list_full_df['imdb_id'],
+        # df['titles'] = movie_list_full_df['title'],
+        # df['genres'] = movie_list_full_df['genre_tags'],
+        df = pd.DataFrame({
+            score_key: list(scores),
+            'movie_id': movie_list_full_df['imdb_id'],
+            'titles': movie_list_full_df['title'],
+            'genres': movie_list_full_df['genre_tags'],
+        })
+        print(df)
+        print(type(df))
+        print(other_matching_titles)
+        return df, other_matching_titles
+
+
+@login_required()
+def collaborative_filtering_mf_user(request):
+    '''
+    View to handle ajax request to recommend movies based on matrix factorisation algorithm
+    '''
+    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+    if is_ajax:
+        if request.method == 'POST':
+            print("inside MF User")
+            data = json.load(request)
+            user_id = data['user_id']
+            measure = data['measure']
+            exclude_rated = data['exclude_rated']
+            print(user_id)
+            print(measure)
+            print(exclude_rated)
+            k = 5  # Number of movies to be recommended
+            # Create the query embeddings
+            query_embedding = U_reg.numpy()[user_id]
+            item_embeddings = V_reg.numpy()
+
+            df = user_recommendations(measure, query_embedding, item_embeddings)
+            print(df)
+            score_key = measure + "_" + "score"
+            rated_movies = ratings_df[ratings_df.user_id == user_id]["movie_id"].values
+            rated_movies_df = ratings_df[ratings_df.user_id == user_id]["movie_id"]
+            top_movies_user = rated_movies_df.sort_values(ascending=False).head(5)
+            movie_df_rows = movie_list_full_df[movie_list_full_df["ml_id"].isin(top_movies_user)]
+
+            if exclude_rated == "Yes":
+                # remove movies that are already rated
+                df = df[df.movie_id.apply(lambda movie_id: movie_id not in rated_movies)]
+            recom_movie_df = df.sort_values(["score_key"], ascending=False).head(k)
+            m_list = []
+            for index, row in recom_movie_df.iterrows():
+                new_list = {'imdb_id': row['movie_id'],
+                            'title': row['titles'],
+                            'genres': row['genres']}
+                m_list.append(new_list)
+            r_list = []
+            print(type(rated_movies))
+            print(rated_movies)
+            for index, row in movie_df_rows.iterrows():
+                new_list = {'imdb_id': row['imdb_id'],
+                            'title': row['title'],
+                            'genres': row['genre_tags']}
+                r_list.append(new_list)
+            return JsonResponse({'recommeded_list': m_list, 'watched_list': r_list}, status=200)
+        return JsonResponse({'status': 'Invalid request'}, status=400)
+    else:
+        return JsonResponse({'status': 'Invalid AJAX request'}, status=400)
+
+
+@login_required()
+def collaborative_filtering_mf_nearest_neighbour(request):
+    '''
+    View to handle ajax request to recommend movies based on matrix factorisation algorithm
+    '''
+    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+    if is_ajax:
+        if request.method == 'POST':
+            data = json.load(request)
+            print("In nearest neighbours")
+            print(data)
+            title_substring = data['title_substring']
+            measure = data['measure']  # DOT or Cosine Similarity
+            print(title_substring)
+            print(measure)
+            score_key = measure+"_" + 'score'
+            k = 5  # Number of movies to be recommended
+            # Create the query embeddings
+            query_embedding = V_reg.numpy()
+            item_embeddings = V_reg.numpy()
+            df, other_matching_titles = movie_neighbours(title_substring, measure, k, query_embedding, item_embeddings)
+            print(df)
+            m_list = [{'other_matching_titles': other_matching_titles}]
+            if df.empty:
+                print("No movies found")
+                # return JsonResponse("No movies found", status=200)
+            else:
+                recom_movie_df = df.sort_values([score_key], ascending=False).head(k)
+
+                # df = user_recommendations(measure, query_embedding, item_embeddings)
+                # print(df)
+                # recom_movie_df = df.sort_values(["score_key"], ascending=False).head(k)
+
+                for index, row in recom_movie_df.iterrows():
+                    new_list = {'imdb_id': row['movie_id'],
+                                'title': row['titles'],
+                                'genres': row['genres'],
+                                }
+                    m_list.append(new_list)
+            return JsonResponse({'recommeded_list': m_list}, status=200)
+        return JsonResponse({'status': 'Invalid request'}, status=400)
+    else:
+        return JsonResponse({'status': 'Invalid AJAX request'}, status=400)
 
 
 @login_required()
@@ -95,7 +292,7 @@ def content_filtering_cosine_similarity(request):
             cleaned_movie = remove_special_characters(data['movieTitle'].lower().strip()).replace(" ", "")
             find_movie = movie_tag_df[movie_tag_df['cleaned_title'].str.contains(cleaned_movie)]
             if find_movie.empty:
-                print("Movie not found in DB - " + movie)
+                print("Movie not found in DB - " + cleaned_movie)
                 return None
             else:
                 movie_index = find_movie.index[0]
@@ -153,7 +350,7 @@ def collaborative_filtering_i2i_cosine_similarity(request):
             cleaned_movie = remove_special_characters(data['movieTitle'].lower().strip()).replace(" ", "")
             index = find_index(cleaned_movie)
             if index == None:
-                print("Movie not found in DB - " + movie)
+                print("Movie not found in DB - " + cleaned_movie)
                 return None
             else:
                 # Get the cosine distance of this movie with respect to other movies from similarity matrix computed above
@@ -223,6 +420,73 @@ def collaborative_filtering_u2u_cosine_similarity(request):
         return JsonResponse({'status': 'Invalid AJAX request'}, status=400)
 
 
+@login_required()
+def dnn_ratings_predictions(request):
+    '''
+    View to handle ajax request to recommend movies based on DNN model for ratings predictions
+    '''
+    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+    if is_ajax:
+        if request.method == 'POST':
+            data = json.load(request)
+            user_id = data['user_id']
+            movies_watched_by_user = DNN_ratings_model_df[DNN_ratings_model_df.user_id == user_id]
+            movies_not_watched = movie_list_full_df[
+                ~movie_list_full_df["ml_id"].isin(movies_watched_by_user.movie_id.values)]["ml_id"]
+            # extract movies from not watch list that other users have rated
+            movies_not_watched = list(set(movies_not_watched).intersection(set(DNN_movie2movie_encoded.keys())))
+            # extract the index of these
+            movies_not_watched = [[DNN_movie2movie_encoded.get(x)] for x in movies_not_watched]
+            # get user index
+            user_encoder = DNN_user2user_encoded.get(user_id)
+            user_input = np.array([[user_encoder]] * len(movies_not_watched))
+            movies_input = np.array(movies_not_watched)
+            # predict user ratings on unseen movies
+            user_ratings = DNN_ratings_model.serve([user_input, movies_input])
+            # Select top 10 movies with highest ratings
+            top_ratings_indices = user_ratings.numpy().argsort()[-10:][::-1]
+            # top_ratings_indices = np.argsort(user_ratings.numpy())[-10:][::-1]
+
+            # indices_descending = np.argsort(user_ratings)[::-1]
+            # Select only the first 10 records
+            # top_ratings_indices = indices_descending[:10]
+
+            print(top_ratings_indices)
+            print(type(top_ratings_indices))
+            print("===1")
+            # top_ratings_indices = np.arange(len(user_ratings) - 10, len(user_ratings))
+            # Get the original movie ids for recommended movies
+            print(type(DNN_movie_encoded2movie))
+            print("===2")
+            for x in top_ratings_indices:
+                print(x)
+            recommended_movie_ids = [DNN_movie_encoded2movie.get(
+                (x)) for x in top_ratings_indices]
+            print(recommended_movie_ids)
+            print("===3")
+            top_movies_user = (
+                movies_watched_by_user.sort_values(by="rating", ascending=False).head(5).movie_id.values)
+            movie_df_rows = movie_list_full_df[movie_list_full_df["ml_id"].isin(top_movies_user)]
+            r_list = []
+            for index, row in movie_df_rows.iterrows():
+                new_list = {'imdb_id': row['imdb_id'],
+                            'title': row['title']}
+                r_list.append(new_list)
+            print(r_list)
+            # Movies recommended to this user
+            recomm_movies = movie_list_full_df[movie_list_full_df["ml_id"].isin(recommended_movie_ids)]
+            m_list = []
+            for index, row in recomm_movies.iterrows():
+                new_list = {'imdb_id': row['imdb_id'],
+                            'title': row['title']}
+                m_list.append(new_list)
+            print(m_list)
+            return JsonResponse({'recommeded_list': m_list, 'watched_list': r_list}, status=200)
+        return JsonResponse({'status': 'Invalid request'}, status=400)
+    else:
+        return JsonResponse({'status': 'Invalid AJAX request'}, status=400)
+
+
 class MovieContentFilteringListView(TemplateView):
     template_name = "movies/movie_content_recomm_form.html"
     context_object_name = "movie_list"
@@ -256,6 +520,41 @@ class MovieCollabFilteringu2uCSListView(TemplateView):
         user_list = users_list_df['id'].values
         # context["form"] = MovieForm()
         context["user_list"] = user_list
+        return context
+
+
+class MovieDNNRatingsPredListView(TemplateView):
+    template_name = "movies/movie_collab_DNN_ratings.html"
+    context_object_name = "user_list"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user_list = users_list_df['id'].values
+        # context["form"] = MovieForm()
+        context["user_list"] = user_list
+        return context
+
+
+class MovieMFUser(TemplateView):
+    template_name = "movies/movie_collab_MF_user.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user_list = users_list_df['id'].values
+        # context["form"] = MovieForm()
+        context["user_list"] = user_list
+        context["measure_list"] = ["COSINE", "DOT"]
+        context["exclude_rated"] = ["Yes", "No"]
+        return context
+
+
+class MovieMFNearestNeighbour(TemplateView):
+    template_name = "movies/movie_collab_MF_nearest_neighbour.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["measure_list"] = ["COSINE", "DOT"]
+        context["exclude_rated"] = ["Yes", "No"]
         return context
 
 

@@ -61,6 +61,12 @@ var recCollabCSu2uURL =
   "http://" +
   window.location.host +
   "/movie/ajax/collab-recommend-u2u-cosine-similarity/";
+var recDnnRatingsURL =
+  "http://" + window.location.host + "/movie/ajax/dnn-ratings-pred/";
+var recMFUserURL =
+  "http://" + window.location.host + "/movie/ajax/matrix-fact-user/";
+var recMFNearestNeighbourURL =
+  "http://" + window.location.host + "/movie/ajax/matrix-fact-nn/";
 var topTrendingURL =
   "http://" + window.location.host + "/movie/ajax/top-trending-movies?genre=";
 
@@ -85,6 +91,31 @@ document.addEventListener("DOMContentLoaded", function () {
     "recommended-collab-cs-u2u-movies"
   );
   const watchedMovies = document.getElementById("watched-movies");
+
+  const recommendDNNratingsButton = document.getElementById(
+    "recommend-dnn-rating-button"
+  );
+  const recommendDNNratingsMovie = document.getElementById(
+    "recommended-dnn-rating-movies"
+  );
+  const watchedMoviesDNNratings = document.getElementById(
+    "watched-movies-DNNratings"
+  );
+  const recommendMFUratingsButton = document.getElementById(
+    "recommend-collab-mf-user-button"
+  );
+  const recommendMFUratingsMovie = document.getElementById(
+    "recommended-collab-mf-user-movies"
+  );
+  const watchedMoviesMFUratings = document.getElementById(
+    "watched-movies-mf-user"
+  );
+  const recommendMFNNratingsButton = document.getElementById(
+    "recommend-collab-mf-nn-button"
+  );
+  const recommendMFNNratingsMovie = document.getElementById(
+    "recommended-collab-mf-nn-movies"
+  );
   /*
 Code for talk to me button
 */
@@ -398,7 +429,7 @@ Code for talk to me button
       }
     });
   }
-  //U2U Collaborative filtering with cosine similarity
+  //User to user based collaborative filtering
   if (recommendCollabCSu2uButton) {
     recommendCollabCSu2uButton.addEventListener("click", function (event) {
       const userInputValue = document.getElementById("user-input");
@@ -438,6 +469,7 @@ Code for talk to me button
               );
               watchLableDiv.innerHTML = `
               <h1 class="h3 mb-0 text-gray-800">Movies watched by ${userId}.</h1>`;
+
               for (let i = 0; i < 5; i++) {
                 const watchedMovieDiv = document.createElement("div");
                 watchedMovieDiv.classList.add("watched-movie");
@@ -460,7 +492,8 @@ Code for talk to me button
                 "recommended-collab-cs-u2u-movies"
               );
               try {
-                var childDivs = parentDiv.getElementsByClassName("movie");
+                var childDivs =
+                  parentDiv.getElementsByClassName("movie-ratings");
                 while (childDivs.length > 0) {
                   childDivs[0].remove();
                 }
@@ -475,7 +508,7 @@ Code for talk to me button
               <h1 class="h3 mb-0 text-gray-800">Movies recommended for this user based on other users..</h1>`;
               for (let i = 0; i < Object.entries(rec_movie_list).length; i++) {
                 const movieDiv = document.createElement("div");
-                movieDiv.classList.add("movie");
+                movieDiv.classList.add("movie-ratings");
                 imdb_url =
                   "https://www.imdb.com/title/" + rec_movie_list[i]["imdb_id"];
                 movieDiv.innerHTML = `
@@ -487,6 +520,314 @@ Code for talk to me button
                 </a>
                                 `;
                 recommendCollabCSu2uSMovie.appendChild(movieDiv);
+              }
+            }
+          });
+      } else {
+        alert("Please select an option before submitting the form.");
+      }
+    });
+  }
+  //DNN network for rating predictions on unseen movies
+  if (recommendDNNratingsButton) {
+    recommendDNNratingsButton.addEventListener("click", function (event) {
+      const userInputValue = document.getElementById("user-input");
+      console.log(userInputValue.value);
+      var userId = userInputValue.value.trim();
+      if (userId !== "") {
+        fetch(recDnnRatingsURL, {
+          method: "POST",
+          credentials: "same-origin",
+          headers: {
+            "X-Requested-With": "XMLHttpRequest",
+            "X-CSRFTOKEN": getCookie("csrftoken"),
+            "Content-type": "application/json",
+          },
+          body: JSON.stringify({ user_id: parseInt(userId) }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            console.log(data);
+            watched_list = data.watched_list;
+            rec_movie_list = data.recommeded_list;
+            if (watched_list !== "") {
+              var parentDiv = document.getElementById(
+                "watched-movies-DNNratings"
+              );
+              try {
+                var childDivs = parentDiv.getElementsByClassName(
+                  "watched-movie-DNNratings"
+                );
+                while (childDivs.length > 0) {
+                  childDivs[0].remove();
+                }
+              } catch (error) {
+                // Code to handle the exception
+                console.error("An error occurred:", error.message);
+              }
+
+              const watchLableDiv = document.getElementById(
+                "movie-watched-title"
+              );
+              watchLableDiv.innerHTML = `
+              <h1 class="h3 mb-0 text-gray-800">Movies watched by ${userId}.</h1>`;
+
+              for (let i = 0; i < 5; i++) {
+                const watchedDNNMovieDiv = document.createElement("div");
+                watchedDNNMovieDiv.classList.add("watched-movie-DNNratings");
+                imdb_url =
+                  "https://www.imdb.com/title/" + watched_list[i]["imdb_id"];
+                watchedDNNMovieDiv.innerHTML = `
+                <a href=${imdb_url} target="_blank" class="btn btn-light btn-icon-split">
+                                          <span class="icon text-gray-600">
+                                              <i class="fas fa-arrow-right"></i>
+                                          </span>
+                                          <span class="text">${watched_list[i]["title"]}</span>
+                </a>
+                                `;
+                watchedMoviesDNNratings.appendChild(watchedDNNMovieDiv);
+              }
+            }
+
+            if (rec_movie_list !== "") {
+              var parentDiv = document.getElementById(
+                "recommended-dnn-rating-movies"
+              );
+              try {
+                var childDivs =
+                  parentDiv.getElementsByClassName("movie-DNN-ratings");
+                while (childDivs.length > 0) {
+                  childDivs[0].remove();
+                }
+              } catch (error) {
+                // Code to handle the exception
+                console.error("An error occurred:", error.message);
+              }
+
+              const recommendationLableDiv =
+                document.getElementById("movie-search-title");
+              recommendationLableDiv.innerHTML = `
+              <h1 class="h3 mb-0 text-gray-800">Movies recommended for this user based on predicted ratings</h1>`;
+              for (let i = 0; i < Object.entries(rec_movie_list).length; i++) {
+                const movieDiv = document.createElement("div");
+                movieDiv.classList.add("movie-DNN-ratings");
+                imdb_url =
+                  "https://www.imdb.com/title/" + rec_movie_list[i]["imdb_id"];
+                movieDiv.innerHTML = `
+                <a href=${imdb_url} target="_blank" class="btn btn-light btn-icon-split">
+                                          <span class="icon text-gray-600">
+                                              <i class="fas fa-arrow-right"></i>
+                                          </span>
+                                          <span class="text">${rec_movie_list[i]["title"]}</span>
+                </a>
+                                `;
+                recommendDNNratingsMovie.appendChild(movieDiv);
+              }
+            }
+          });
+      } else {
+        alert("Please select an option before submitting the form.");
+      }
+    });
+  }
+  //Matrix Factorisation - Recommendation for user
+  if (recommendMFUratingsButton) {
+    recommendMFUratingsButton.addEventListener("click", function (event) {
+      console.log("recommend clicked");
+      const userInputValue = document.getElementById("user-input");
+      const measureInputValue = document.getElementById("measure-input");
+      const excludeInputValue = document.getElementById("exclude-input");
+      console.log(userInputValue.value);
+      console.log(measureInputValue.value);
+      console.log(excludeInputValue.value);
+      var userId = userInputValue.value.trim();
+      if (userId !== "") {
+        fetch(recMFUserURL, {
+          method: "POST",
+          credentials: "same-origin",
+          headers: {
+            "X-Requested-With": "XMLHttpRequest",
+            "X-CSRFTOKEN": getCookie("csrftoken"),
+            "Content-type": "application/json",
+          },
+          body: JSON.stringify({
+            user_id: parseInt(userId),
+            measure: measureInputValue.value,
+            exclude_rated: excludeInputValue.value,
+          }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            console.log(data);
+            watched_list = data.watched_list;
+            console.log(data.watched_list);
+            rec_movie_list = data.recommeded_list;
+            if (watched_list !== "") {
+              var parentDiv = document.getElementById("watched-movies-mf-user");
+              try {
+                var childDivs = parentDiv.getElementsByClassName(
+                  "watched-movie-MFUratings"
+                );
+                while (childDivs.length > 0) {
+                  childDivs[0].remove();
+                }
+              } catch (error) {
+                // Code to handle the exception
+                console.error("An error occurred:", error.message);
+              }
+
+              const watchLableDiv = document.getElementById(
+                "movie-watched-title"
+              );
+              watchLableDiv.innerHTML = `
+              <h1 class="h3 mb-0 text-gray-800">Movies watched by ${userId}.</h1>`;
+
+              for (let i = 0; i < 5; i++) {
+                const watchedMFUMovieDiv = document.createElement("div");
+                watchedMFUMovieDiv.classList.add("watched-movie-MFUratings");
+                imdb_url =
+                  "https://www.imdb.com/title/" + watched_list[i]["imdb_id"];
+                watchedMFUMovieDiv.innerHTML = `
+                <a href=${imdb_url} target="_blank" class="btn btn-light btn-icon-split">
+                                          <span class="icon text-gray-600">
+                                              <i class="fas fa-arrow-right"></i>
+                                          </span>
+                                          <span class="text">${watched_list[i]["title"]}(${watched_list[i]["genres"]})</span>
+                </a>
+                                `;
+                watchedMoviesMFUratings.appendChild(watchedMFUMovieDiv);
+              }
+            }
+
+            if (rec_movie_list !== "") {
+              var parentDiv = document.getElementById(
+                "recommended-collab-mf-user-movies"
+              );
+              try {
+                var childDivs = parentDiv.getElementsByClassName(
+                  "movie-mfu-recommend"
+                );
+                while (childDivs.length > 0) {
+                  childDivs[0].remove();
+                }
+              } catch (error) {
+                // Code to handle the exception
+                console.error("An error occurred:", error.message);
+              }
+
+              const recommendationLableDiv =
+                document.getElementById("movie-search-title");
+              recommendationLableDiv.innerHTML = `
+              <h1 class="h3 mb-0 text-gray-800">Movies recommended for this user (may or may not be based on rating provide)</h1>`;
+              for (let i = 0; i < Object.entries(rec_movie_list).length; i++) {
+                const movieDiv = document.createElement("div");
+                movieDiv.classList.add("movie-mfu-recommend");
+                imdb_url =
+                  "https://www.imdb.com/title/" + rec_movie_list[i]["imdb_id"];
+                movieDiv.innerHTML = `
+                <a href=${imdb_url} target="_blank" class="btn btn-light btn-icon-split">
+                                          <span class="icon text-gray-600">
+                                              <i class="fas fa-arrow-right"></i>
+                                          </span>
+                                          <span class="text">${rec_movie_list[i]["title"]}(${rec_movie_list[i]["genres"]})</span>
+                </a>
+                                `;
+                recommendMFUratingsMovie.appendChild(movieDiv);
+              }
+            }
+          });
+      } else {
+        alert("Please select an option before submitting the form.");
+      }
+    });
+  }
+  //Matrix Factorisation nearest neighbour search
+  if (recommendMFNNratingsButton) {
+    recommendMFNNratingsButton.addEventListener("click", function (event) {
+      console.log("search clicked");
+      const userInputValue = document.getElementById("user-input");
+      const measureInputValue = document.getElementById("measure-input");
+      console.log(userInputValue.value);
+      console.log(measureInputValue.value);
+      var userId = userInputValue.value.trim();
+      console.log(userId);
+      if (userId !== "") {
+        fetch(recMFNearestNeighbourURL, {
+          method: "POST",
+          credentials: "same-origin",
+          headers: {
+            "X-Requested-With": "XMLHttpRequest",
+            "X-CSRFTOKEN": getCookie("csrftoken"),
+            "Content-type": "application/json",
+          },
+          body: JSON.stringify({
+            title_substring: userInputValue.value,
+            measure: measureInputValue.value,
+          }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            console.log(data);
+            rec_movie_list = data.recommeded_list;
+
+            if (rec_movie_list !== "") {
+              var parentDiv = document.getElementById(
+                "recommended-collab-mf-nn-movies"
+              );
+              try {
+                var childDivs = parentDiv.getElementsByClassName(
+                  "movie-mfnn-recommend"
+                );
+                while (childDivs.length > 0) {
+                  childDivs[0].remove();
+                }
+              } catch (error) {
+                // Code to handle the exception
+                console.error("An error occurred:", error.message);
+              }
+              var parentDiv = document.getElementById("movie-search-title");
+              try {
+                var childDivs = parentDiv.getElementsByClassName(
+                  "movie-mfnn-titlesfound"
+                );
+                while (childDivs.length > 0) {
+                  childDivs[0].remove();
+                }
+              } catch (error) {
+                // Code to handle the exception
+                console.error("An error occurred:", error.message);
+              }
+
+              const recommendationLableDiv =
+                document.getElementById("movie-search-title");
+
+              if (Object.entries(rec_movie_list).length > 1) {
+                recommendationLableDiv.innerHTML = `
+                <div><h2 class="row movie-mfnn-titlesfound h3 mb-0 text-gray-800">Matching titles found - ${rec_movie_list[0]["other_matching_titles"]} </h2></div>
+                <div><h2 class="row movie-mfnn-titlesfound h3 mb-0 text-gray-800">Recommendations based on "${rec_movie_list[1]["title"]}"</h2></div>`;
+                for (
+                  let i = 1;
+                  i < Object.entries(rec_movie_list).length;
+                  i++
+                ) {
+                  const movieDiv = document.createElement("div");
+                  movieDiv.classList.add("movie-mfnn-recommend");
+                  imdb_url =
+                    "https://www.imdb.com/title/" +
+                    rec_movie_list[i]["imdb_id"];
+                  movieDiv.innerHTML = `
+                  <a href=${imdb_url} target="_blank" class="btn btn-light btn-icon-split">
+                                            <span class="icon text-gray-600">
+                                                <i class="fas fa-arrow-right"></i>
+                                            </span>
+                                            <span class="text">${rec_movie_list[i]["title"]}(${rec_movie_list[i]["genres"]})</span>
+                  </a>
+                                  `;
+                  recommendMFNNratingsMovie.appendChild(movieDiv);
+                }
+              } else {
+                recommendationLableDiv.innerHTML = `
+                <div><h2 class="row movie-mfnn-titlesfound h3 mb-0 text-gray-800">Matching titles found - ${rec_movie_list[0]["other_matching_titles"]} </h2></div>`;
               }
             }
           });

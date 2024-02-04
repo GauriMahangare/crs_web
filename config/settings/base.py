@@ -304,7 +304,8 @@ ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 # https://django-allauth.readthedocs.io/en/latest/configuration.html
 ACCOUNT_ADAPTER = "crs_web.users.adapters.AccountAdapter"
 # https://django-allauth.readthedocs.io/en/latest/forms.html
-ACCOUNT_FORMS = {"signup": "crs_web.users.forms.UserSignupForm"}
+# ACCOUNT_FORMS = {"signup": "crs_web.users.forms.UserSignupForm"}
+ACCOUNT_FORMS = {"signup": "crs_web.users.forms.CustomSignupForm"}
 # https://django-allauth.readthedocs.io/en/latest/configuration.html
 SOCIALACCOUNT_ADAPTER = "crs_web.users.adapters.SocialAccountAdapter"
 # https://django-allauth.readthedocs.io/en/latest/forms.html

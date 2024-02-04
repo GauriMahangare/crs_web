@@ -1,10 +1,11 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
+from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import DetailView, RedirectView, UpdateView
-
+from .models import UserProfile
 User = get_user_model()
 
 
@@ -18,8 +19,8 @@ user_detail_view = UserDetailView.as_view()
 
 
 class UserUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
-    model = User
-    fields = ["name"]
+    model = UserProfile
+    fields = ["first_name", "last_name", "gender", "movie_pref_1", "movie_pref_2", "movie_pref_3"]
     success_message = _("Information successfully updated")
 
     def get_success_url(self):
@@ -27,7 +28,8 @@ class UserUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
         return self.request.user.get_absolute_url()
 
     def get_object(self):
-        return self.request.user
+        user_profile = get_object_or_404(UserProfile, user_id=self.request.user)
+        return user_profile
 
 
 user_update_view = UserUpdateView.as_view()
