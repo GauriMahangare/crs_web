@@ -78,7 +78,7 @@
 </head>
 <body id="page-top">
   <div class="mb-1">
-    <nav class="navbar navbar-expand-md navbar-light bg-light">
+    <nav class="navbar navbar-expand-md navbar-light bg-body-tertiary bg-light">
       <div class="container-fluid">
         <button class="navbar-toggler navbar-toggler-right"
                 type="button"
@@ -102,20 +102,28 @@
               <li class="nav-item">
                 <a class="nav-link" href="{% url 'movie:movie-content-list' %}">Content Filtering</a>
               </li>
-              <li class="nav-item">
-                <a class="nav-link" href="{% url 'movie:movie-collab-i2iCS-list' %}">Collab Filtering CS - Item-Item </a>
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  Collaborative Filtering
+                </a>
+                <ul class="dropdown-menu">
+                  <li><a class="dropdown-item" href="{% url 'movie:movie-collab-i2iCS-list' %}">Item-Item</a></li>
+                  <li><a class="dropdown-item" href="{% url 'movie:movie-collab-u2uCS-list' %}">User-User</a></li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li><a class="dropdown-item" href="#">Item-User</a></li>
+                </ul>
+              </li>
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  Matrix Factorisation
+                </a>
+                <ul class="dropdown-menu">
+                  <li><a class="dropdown-item" href="{% url 'movie:movie-mf-user' %}">User</a></li>
+                  <li><a class="dropdown-item" href="{% url 'movie:movie-mf-nearest-neighbour' %}">Nearest Neighbour</a></li>
+                </ul>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="{% url 'movie:movie-collab-u2uCS-list' %}">Collab Filtering CS- User-User</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="{% url 'movie:movie-dnn-ratings-pred-list' %}">DNN Ratings Pred Recommendations</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="{% url 'movie:movie-mf-user' %}">MF_User</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="{% url 'movie:movie-mf-nearest-neighbour' %}">MF_Nearest_Neighbour</a>
+                <a class="nav-link" href="{% url 'movie:movie-dnn-ratings-pred-list' %}">Deep Neural Network</a>
               </li>
               <li class="nav-item">
                 <a class="nav-link"
