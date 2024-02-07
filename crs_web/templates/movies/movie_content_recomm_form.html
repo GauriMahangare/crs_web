@@ -11,7 +11,7 @@
         <form method="POST" onsubmit="return validateForm()">
             {% csrf_token %}
             <div class="col-xl-6 col-md-6 mb-4">
-                <label for="movieDataList" class="form-label" id="movieDataList">Search similar movies</label>
+                <label for="movieDataList" class="form-label" id="movieDataList">Search movies based on title, cast,crew,genre,directors and producers</label>
                 <input class="form-control" list="datalistOptions" id="movie-input" placeholder="Select an option..." required>
                 <datalist id="datalistOptions">
                     {% comment %} <option value={{ movie_list }}> {% endcomment %}
@@ -25,16 +25,15 @@
                     <span class="icon text-white-50">
                         <i class="fas fa-flag"></i>
                     </span>
-                    <span class="text">Recommend Similar Movies</span>
+                    <span class="text">Search Movies</span>
                 </a>
             </div>
         </form>
     </div>
-
-
     <div class="d-sm-flex align-items-center justify-content-between mb-4" id="movie-search-title">
     </div>
-    <div class="row" id=recommended-movies>
+    <div class="row">
+        <ul class="list-group" id=recommended-movies>
+        </ul>
     </div>
-
 {% endblock content %}

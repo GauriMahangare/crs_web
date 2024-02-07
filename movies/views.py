@@ -23,11 +23,6 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 import re
 import tensorflow as tf
-from tensorflow.keras.models import Model
-from tensorflow.keras.layers import Input, Embedding, Dense, Dropout, Dot, Flatten, Add
-from tensorflow.keras.regularizers import l2
-from tensorflow.keras.callbacks import EarlyStopping
-from tensorflow.keras.models import load_model
 
 
 logger = logging.getLogger(__name__)
@@ -63,8 +58,11 @@ ratings_df = pd.read_csv(open(
     "/Users/gauridhumal/Development Projects/UOL-PROJECTs/CRS/DS/crs_ds/data/processed/movieLense/ratings_short.csv", 'r'))
 
 # Models for DNN
-DNN_ratings_model = tf.saved_model.load(
-    "/Users/gauridhumal/Development Projects/UOL-PROJECTs/CRS/DS/crs_ds/models/DNN_ratings_prediction/")
+# DNN_ratings_model = tf.saved_model.load(
+#     "/Users/gauridhumal/Development Projects/UOL-PROJECTs/CRS/DS/crs_ds/models/DNN_ratings_prediction/")
+DNN_ratings_model = tf.keras.models.load_model(
+    "/Users/gauridhumal/Development Projects/UOL-PROJECTs/CRS/DS/crs_ds/models/DNN_ratings_prediction/cf_dnn_model")
+
 DNN_ratings_model_df = pd.read_pickle(
     open("/Users/gauridhumal/Development Projects/UOL-PROJECTs/CRS/DS/crs_ds/models/DNN_ratings_prediction/dnn_ratings_pred_df.pkl", 'rb'))
 DNN_movie2movie_encoded = pd.read_pickle(
@@ -281,7 +279,7 @@ def collaborative_filtering_mf_nearest_neighbour(request):
 
 
 @login_required()
-def content_filtering_cosine_similarity(request):
+def content_filtering_search(request):
     '''
     View to handle ajax request to recommend movies
     '''
@@ -289,27 +287,66 @@ def content_filtering_cosine_similarity(request):
     if is_ajax:
         if request.method == 'POST':
             data = json.load(request)
-            cleaned_movie = remove_special_characters(data['movieTitle'].lower().strip()).replace(" ", "")
-            find_movie = movie_tag_df[movie_tag_df['cleaned_title'].str.contains(cleaned_movie)]
-            if find_movie.empty:
-                print("Movie not found in DB - " + cleaned_movie)
-                return None
-            else:
-                movie_index = find_movie.index[0]
-                distances = similarity[movie_index]
-                movies_recom_list = sorted(list(enumerate(distances)), reverse=True, key=lambda x: x[1])[1:7]
-                if movies_recom_list == None:
-                    print("Movie not in database.")
+            search_string = remove_special_characters(data['movieTitle'].lower().strip()).replace(" ", "")
+            searched_movies = movie_tag_df[movie_tag_df['tags'].str.contains(search_string)]
+            if searched_movies.empty:
+                print("String not found in tag - " + search_string)
+                searched_movies = movie_tag_df[movie_tag_df['cleaned_title'].str.contains(search_string)]
+                if searched_movies.empty:
+                    search_list = []
+                    print("String not found in title - " + search_string)
+                    return JsonResponse({'search_list': search_list}, status=200)
                 else:
-                    m_list = []
-                    for i in movies_recom_list:
-                        new_list = {'imdb_id': movie_tag_df.iloc[i[0]].imdb_id,
-                                    'title': movie_tag_df.iloc[i[0]].title}
-                        m_list.append(new_list)
-                    return JsonResponse({'list': m_list}, status=200)
+                    search_list = []
+                    for index, row in searched_movies.iterrows():
+                        print(f"Index: {index}, Values: {row['ml_id']}, {row['title']}, {row['imdb_id']}")
+                        new_list = {'index': index,
+                                    'imdb_id': row['imdb_id'],
+                                    'title': row['title'],
+                                    'tags': row['tags']}
+                        search_list.append(new_list)
+                    return JsonResponse({'search_list': search_list}, status=200)
+            else:
+                search_list = []
+                for index, row in searched_movies.iterrows():
+                    print(f"Index: {index}, Values: {row['ml_id']}, {row['title']}, {row['imdb_id']}")
+                    new_list = {'index': index,
+                                'imdb_id': row['imdb_id'],
+                                'title': row['title'],
+                                'tags': row['tags']}
+                    search_list.append(new_list)
+                return JsonResponse({'search_list': search_list}, status=200)
         return JsonResponse({'status': 'Invalid request'}, status=400)
     else:
         return JsonResponse({'status': 'Invalid AJAX request'}, status=400)
+
+
+@login_required()
+def content_filtering_cosine_similarity(request, index):
+    '''
+    View to handle ajax request to recommend movies
+    '''
+    print("in content_filtering_cosine_similarity")
+    print(request.headers)
+    # is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+    # if is_ajax:
+    if request.method == 'GET':
+        movie_index = index
+        print(movie_index)
+        distances = similarity[movie_index]
+        movies_recom_list = sorted(list(enumerate(distances)), reverse=True, key=lambda x: x[1])[1:7]
+        m_list = []
+        if movies_recom_list == None:
+            print("No movies to recommend.")
+        else:
+            for i in movies_recom_list:
+                new_list = {'imdb_id': movie_tag_df.iloc[i[0]].imdb_id,
+                            'title': movie_tag_df.iloc[i[0]].title}
+                m_list.append(new_list)
+        return JsonResponse({'recommend_list': m_list}, status=200)
+    return JsonResponse({'status': 'Invalid request'}, status=400)
+    # else:
+    #     return JsonResponse({'status': 'Invalid AJAX request'}, status=400)
 
 
 def top_trending_movies(request):
@@ -349,12 +386,13 @@ def collaborative_filtering_i2i_cosine_similarity(request):
             data = json.load(request)
             cleaned_movie = remove_special_characters(data['movieTitle'].lower().strip()).replace(" ", "")
             index = find_index(cleaned_movie)
+            print(index)
             if index == None:
                 print("Movie not found in DB - " + cleaned_movie)
                 return None
             else:
                 # Get the cosine distance of this movie with respect to other movies from similarity matrix computed above
-                distances = collab_similarity[index]
+                distances = collab_similarity[index[0]]
                 similar_items = sorted(list(enumerate(distances)), reverse=True, key=lambda x: x[1])[1:6]
                 movies = []
                 for i in similar_items:
@@ -442,28 +480,13 @@ def dnn_ratings_predictions(request):
             user_input = np.array([[user_encoder]] * len(movies_not_watched))
             movies_input = np.array(movies_not_watched)
             # predict user ratings on unseen movies
-            user_ratings = DNN_ratings_model.serve([user_input, movies_input])
+            user_ratings = DNN_ratings_model.predict([user_input, movies_input]).flatten()
+            print(user_ratings)
             # Select top 10 movies with highest ratings
-            top_ratings_indices = user_ratings.numpy().argsort()[-10:][::-1]
-            # top_ratings_indices = np.argsort(user_ratings.numpy())[-10:][::-1]
-
-            # indices_descending = np.argsort(user_ratings)[::-1]
-            # Select only the first 10 records
-            # top_ratings_indices = indices_descending[:10]
-
-            print(top_ratings_indices)
-            print(type(top_ratings_indices))
-            print("===1")
-            # top_ratings_indices = np.arange(len(user_ratings) - 10, len(user_ratings))
+            top_ratings_indices = user_ratings.argsort()[-10:][::-1]
             # Get the original movie ids for recommended movies
-            print(type(DNN_movie_encoded2movie))
-            print("===2")
-            for x in top_ratings_indices:
-                print(x)
             recommended_movie_ids = [DNN_movie_encoded2movie.get(
-                (x)) for x in top_ratings_indices]
-            print(recommended_movie_ids)
-            print("===3")
+                movies_not_watched[x][0]) for x in top_ratings_indices]
             top_movies_user = (
                 movies_watched_by_user.sort_values(by="rating", ascending=False).head(5).movie_id.values)
             movie_df_rows = movie_list_full_df[movie_list_full_df["ml_id"].isin(top_movies_user)]

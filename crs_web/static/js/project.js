@@ -26,7 +26,35 @@ function create_UUID4() {
     ).toString(16)
   );
 }
+// function handleLinkClick(event) {
+//   // Prevent the default behavior of the anchor tag (navigation)
+//   event.preventDefault();
 
+//   // Get the href attribute value
+//   var hrefValue = event.currentTarget.getAttribute("href");
+
+//   // Fetch data from the URL
+//   fetch(hrefValue)
+//     .then((response) => {
+//       // Check if the request was successful (status code in the range 200-299)
+//       if (!response.ok) {
+//         throw new Error("Network response was not ok");
+//       }
+//       // Parse the response as JSON or text, depending on the content type
+//       return response.json(); // or response.text() for plain text
+//     })
+//     .then((data) => {
+//       // Process and display the response data
+//       console.log("Response from URL:", data);
+
+//       // Replace this with your logic to display or process the data
+//       alert("Response from URL: " + JSON.stringify(data));
+//     })
+//     .catch((error) => {
+//       console.error("Error fetching data:", error);
+//       // Handle errors here
+//     });
+// }
 function getCookie(name) {
   let cookieValue = null;
   if (document.cookie && document.cookie !== "") {
@@ -51,8 +79,10 @@ var chatURL = "ws://" + window.location.host + "/ws/chat/" + roomName + "/";
 var convURL =
   "http://" + window.location.host + "/chat/ajax/create-conversation/";
 
-var recURL =
+var recContentRecommendURL =
   "http://" + window.location.host + "/movie/ajax/content-recommend-movies/";
+var recContentSearchURL =
+  "http://" + window.location.host + "/movie/ajax/content-search-movies/";
 var recCollabCSi2iURL =
   "http://" +
   window.location.host +
@@ -70,12 +100,18 @@ var recMFNearestNeighbourURL =
 var topTrendingURL =
   "http://" + window.location.host + "/movie/ajax/top-trending-movies?genre=";
 
+var filteredLinks = Array.from(document.querySelectorAll("a")).filter(
+  (link) => link.getAttribute("data-category") === "internal"
+);
 document.addEventListener("DOMContentLoaded", function () {
   const messageInput = document.getElementById("message-input");
   const sendButton = document.getElementById("send-button");
   const chatMessages = document.querySelector(".chat-messages");
   const recommendButton = document.getElementById("recommend-button");
   const recommendMovie = document.getElementById("recommended-movies");
+  const recommendMovieButton = document.getElementById(
+    "movie-recommend-button"
+  );
   const topTrendingButton = document.getElementById("top-trending-button");
   const topTrendingMovies = document.getElementById("top-trending-movies");
   const recommendCollabCSi2iButton = document.getElementById(
@@ -116,6 +152,15 @@ document.addEventListener("DOMContentLoaded", function () {
   const recommendMFNNratingsMovie = document.getElementById(
     "recommended-collab-mf-nn-movies"
   );
+
+  // Add click event listeners to specific anchor tags based on criteria
+  // var filteredLinks = Array.from(document.querySelectorAll("a")).filter(
+  //   (link) => link.getAttribute("data-category") === "internal"
+  // );
+  // console.log(filteredLinks);
+  // filteredLinks.forEach((anchor) => {
+  //   anchor.addEventListener("click", handleLinkClick);
+  // });
   /*
 Code for talk to me button
 */
@@ -227,12 +272,13 @@ Code for talk to me button
   //content filtering
   if (recommendButton) {
     recommendButton.addEventListener("click", function (event) {
+      event.preventDefault();
       const movieInputValue = document.getElementById("movie-input");
-      console.log(movieInputValue.value);
+
       var movieTitle = movieInputValue.value.trim();
-      console.log(movieTitle);
+
       if (movieTitle !== "") {
-        fetch(recURL, {
+        fetch(recContentSearchURL, {
           method: "POST",
           credentials: "same-origin",
           headers: {
@@ -244,8 +290,8 @@ Code for talk to me button
         })
           .then((response) => response.json())
           .then((data) => {
-            rec_movie_list = data.list;
-            if (rec_movie_list !== "") {
+            content_searched_movies = data.search_list;
+            if (Object.entries(content_searched_movies).length > 0) {
               var parentDiv = document.getElementById("recommended-movies");
               try {
                 var childDivs = parentDiv.getElementsByClassName("movie");
@@ -259,22 +305,104 @@ Code for talk to me button
               const recommendationLableDiv =
                 document.getElementById("movie-search-title");
               recommendationLableDiv.innerHTML = `
-              <h1 class="h3 mb-0 text-gray-800">Movies matching to your search..</h1>`;
-              for (let i = 0; i < Object.entries(rec_movie_list).length; i++) {
+              <h1 class="h3 mb-0 text-gray-800">Movies matching to your search..</h1>
+              `;
+              for (
+                let i = 0;
+                i < Object.entries(content_searched_movies).length;
+                i++
+              ) {
                 const movieDiv = document.createElement("div");
+                const recommend_movie_button_id =
+                  "movie-recommend-button" +
+                  content_searched_movies[i]["index"];
                 movieDiv.classList.add("movie");
                 imdb_url =
-                  "https://www.imdb.com/title/" + rec_movie_list[i]["imdb_id"];
+                  "https://www.imdb.com/title/" +
+                  content_searched_movies[i]["imdb_id"];
                 movieDiv.innerHTML = `
-                <a href=${imdb_url} target="_blank" class="btn btn-light btn-icon-split">
+                <li class="list-group-item">
+                <div class="row ">
+                  <div class="col">
+                    <a href=${imdb_url} target="_blank" class="btn btn-secondary btn-icon-split">
                                           <span class="icon text-gray-600">
                                               <i class="fas fa-arrow-right"></i>
                                           </span>
-                                          <span class="text">${rec_movie_list[i]["title"]}</span>
-                </a>
+                                          <span class="text">${content_searched_movies[i]["title"]}-(${content_searched_movies[i]["index"]})</span>
+                    </a>
+                  </div>
+                  <div class="col-auto">
+                    <a href="#" class="btn-small btn-primary btn-icon-split ${content_searched_movies[i]["index"]}" data-category="internal" id=recommend_movie_button_id=${content_searched_movies[i]["index"]}>
+                    <span class="icon text-gray-600">
+                        <i class="fas fa-arrow-up"></i>
+                    </span>
+                    <span class="text"> Recommend for this movie</span>
+                    </a>
+                  </div>
+                </div>
+
+                <div class="col-md-6 d-centre justify-content-center" id="recommendation-list">
+                </div>
+                </li>
                                 `;
                 recommendMovie.appendChild(movieDiv);
               }
+              for (
+                var i = 0;
+                i < Object.entries(content_searched_movies).length;
+                i++
+              ) {
+                var dynamicLinkId =
+                  "recommend_movie_button_id" +
+                  "=" +
+                  content_searched_movies[i]["index"];
+                var dynamicLink = document.getElementById(dynamicLinkId);
+
+                dynamicLink.addEventListener("click", function (event) {
+                  event.preventDefault();
+                  var hrefValue = this.getAttribute("href");
+                  var idValue = this.getAttribute("id");
+                  var index = idValue.split("=");
+                  var url = recContentRecommendURL + index[1];
+                  console.log("Processing to submit to:", url);
+                  fetch(url)
+                    .then((response) => {
+                      // Check if the request was successful (status code in the range 200-299)
+                      if (!response.ok) {
+                        throw new Error("Network response was not ok");
+                      }
+                      // Parse the response as JSON or text, depending on the content type
+                      return response.json(); // or response.text() for plain text
+                    })
+                    .then((data) => {
+                      // Process and display the response data
+                      console.log("Response from URL:", data);
+
+                      // Replace this with your logic to display or process the data
+                      // alert("Response from URL: " + JSON.stringify(data));
+                      searched_movies = data.recommend_list;
+                      if (Object.entries(searched_movies).length > 0) {
+                        alert(
+                          "Recommendations based on this movie: " +
+                            JSON.stringify(data)
+                        );
+                      } else {
+                        alert("No movies to recommend");
+                      }
+                    })
+                    .catch((error) => {
+                      console.error("Error fetching data:", error);
+                      // Handle errors here
+                    });
+                });
+              }
+            } else {
+              console.log("no movies in search list");
+              const recommendationLableDiv =
+                document.getElementById("movie-search-title");
+              recommendationLableDiv.innerHTML = `
+              <h1 class="h3 mb-0 text-gray-800">No movies found</h1>
+              `;
             }
           });
       } else {
@@ -282,6 +410,7 @@ Code for talk to me button
       }
     });
   }
+
   // Top trending
   if (topTrendingButton) {
     topTrendingButton.addEventListener("click", function (event) {

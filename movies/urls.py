@@ -18,8 +18,9 @@ urlpatterns = [
     path("matrix-factorisation/nearest-neighbour/",
          views.MovieMFNearestNeighbour.as_view(), name="movie-mf-nearest-neighbour"),
     path("home/", views.MovieCategoriesListView.as_view(), name="movie-top-trending-list"),
-
-    path('ajax/content-recommend-movies/', views.content_filtering_cosine_similarity, name='content-recommend-movies'),
+    path('ajax/content-search-movies/', views.content_filtering_search, name='content-search-movies'),
+    path('ajax/content-recommend-movies/<int:index>/',
+         views.content_filtering_cosine_similarity, name='content-recommend-movies'),
     path('ajax/collab-recommend-i2i-cosine-similarity/',
          views.collaborative_filtering_i2i_cosine_similarity, name='collab-i2i-CS-recommend-movies'),
     path('ajax/collab-recommend-u2u-cosine-similarity/',
