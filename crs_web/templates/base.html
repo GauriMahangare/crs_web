@@ -35,6 +35,8 @@
 {% compress css %}
   <link href="{% static 'css/project.css' %}" rel="stylesheet" />
   <link href="{% static 'css/sb-admin-2.css' %}" rel="stylesheet" />
+  <link href="{% static 'css/materialize.min.css' %}" rel="stylesheet" />
+  <link href="{% static 'css/style.css' %}" rel="stylesheet" />
 {% endcompress %}
 
 {% endblock css %}
@@ -65,6 +67,24 @@
 {% comment %} <script type="text/javascript" src="{% static 'django_select2/js/select2.full.min.js' %}"></script> {% endcomment %}
 {% compress js %}
   <script defer src="{% static 'js/project.js' %}"></script>
+  <script defer src="{% static 'js/lib/materialize.min.js' %}"></script>
+  <script defer src="{% static 'js/lib/uuid.min.js' %}"></script>
+  <script defer src="{% static 'js/script.js' %}"></script>
+  <script defer src="{% static 'js/constants.js' %}"></script>
+      <!--Chart.js Script -->
+  <script defer src="{% static 'js/lib/chart.min.js' %}"></script>
+  <script defer src="{% static 'js/lib/showdown.min.js' %}"></script>
+  <script defer src="{% static 'js/components/botTyping.js' %}"></script>
+  <script defer src="{% static 'js/components/cardsCarousel.js' %}"></script>
+  <script defer src="{% static 'js/components/charts.js' %}"></script>
+  <script defer src="{% static 'js/components/chat.js' %}"></script>
+  <script defer src="{% static 'js/components/collapsible.js' %}"></script>
+  <script defer src="{% static 'js/components/dropDown.js' %}"></script>
+  <script defer src="{% static 'js/components/location.js' %}"></script>
+  <script defer src="{% static 'js/components/pdfAttachment.js' %}"></script>
+  <script defer src="{% static 'js/components/quickReplies.js' %}"></script>
+  <script defer src="{% static 'js/components/suggestionButtons.js' %}"></script>
+  <script defer src="{% static 'js/components/index.js' %}"></script>
   {% comment %} <script type="text/javascript">
     var Cinegenius = new chatroom({
       host: "http://localhost:5005",
@@ -139,9 +159,6 @@
                 <a class="nav-link" href="{% url 'movie:movie-dnn-ratings-pred-list' %}">Deep Neural Network</a>
               </li>
               <li class="nav-item">
-                <p>chat</p>
-              </li>
-              <li class="nav-item">
                 <a class="nav-link"
                    href="{% url 'users:detail' request.user.pk %}">{% translate "My Profile" %}</a>
               </li>
@@ -188,6 +205,57 @@
   </div>
   <!-- /container -->
   {% block modal %}
+        <!--chatbot widget -->
+        <div class="widget">
+          <div class="chat_header">
+            <!--Add the name of the bot here -->
+            <span class="chat_header_title"> Cinegenius Bot</span>
+            <span class="dropdown-trigger" href="#" data-target="dropdown1">
+              <i class="material-icons"> more_vert </i>
+            </span>
+
+            <!-- Dropdown menu-->
+            <ul id="dropdown1" class="dropdown-content">
+              <li><a href="#" id="clear">Clear</a></li>
+              <li><a href="#" id="restart">Restart</a></li>
+              <li><a href="#" id="close">Close</a></li>
+            </ul>
+          </div>
+
+          <!--Chatbot contents goes here -->
+          <div class="chats" id="chats">
+            <div class="clearfix"></div>
+          </div>
+
+          <!--keypad for user to type the message -->
+          <div class="keypad">
+            <textarea
+              id="userInput"
+              placeholder="Type a message..."
+              class="usrInput"
+            ></textarea>
+            <div id="sendButton">
+              <i class="fa fa-paper-plane" aria-hidden="true"></i>
+            </div>
+          </div>
+        </div>
+
+        <!--bot profile-->
+        <div class="profile_div" id="profile_div">
+          <img class="imgProfile" src={% static 'images/botAvatar.png' %} />
+        </div>
+
+        <!-- Bot pop-up intro -->
+        <div class="tap-target" data-target="profile_div">
+          <div class="tap-target-content">
+            <h5 class="white-text">Hey there 👋</h5>
+            <p class="white-text">
+              I can help you get started with Rasa and answer your technical
+              questions.
+            </p>
+          </div>
+        </div>
+      </div>
   {% endblock modal %}
   {% block inline_javascript %}
 
@@ -215,9 +283,10 @@
     {% now "Y" as current_year %}
     <div class="container"><small> Copyright © <a class="pr-0" href = "https://www.liverpool.ac.uk/" target="_blank">Gauri Mahangare </a>: {{current_year}}</small></div>
   </div>
-<div id="rasa-chat-widget" data-websocket-url="http://localhost:5005/socket.io"
+{% comment %} <div id="rasa-chat-widget" data-websocket-url="http://localhost:5005/socket.io"
   data-initial-payload="Hi, I am Cinegenius. How may I help you?"></div>
 <script src="https://unpkg.com/@rasahq/rasa-chat" type="application/javascript"></script>
-  </script>
+  </script> {% endcomment %}
+
 </footer>
 </html>
