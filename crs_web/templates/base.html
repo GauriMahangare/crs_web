@@ -27,6 +27,7 @@
           referrerpolicy="no-referrer" />
 <!-- Your stuff: Third-party CSS libraries go here -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@scalableminds/chatroom@0.12.0/dist/Chatroom.min.css">
 <!-- This file stores project-specific CSS -->
 {% comment %} <link rel="stylesheet" type="text/css" href="{% static 'django_select2/css/select2.min.css' %}"> {% endcomment %}
 
@@ -53,6 +54,7 @@
         referrerpolicy="no-referrer"></script>
 <!-- Your stuff: Third-party javascript libraries go here -->
 <script src="https://use.fontawesome.com/releases/v5.15.1/js/all.js" crossorigin="anonymous"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/1.0.0-beta/components/chatroom.js"></script>
 <!-- Google fonts-->
 <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css" />
 <link href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic" rel="stylesheet" type="text/css" />
@@ -63,6 +65,17 @@
 {% comment %} <script type="text/javascript" src="{% static 'django_select2/js/select2.full.min.js' %}"></script> {% endcomment %}
 {% compress js %}
   <script defer src="{% static 'js/project.js' %}"></script>
+  {% comment %} <script type="text/javascript">
+    var Cinegenius = new chatroom({
+      host: "http://localhost:5005",
+      title: "Chat with Cinegenius",
+      container: document.querySelector(".chat-container"),
+      welcomeMessage: "Hi, I am Cinegenius. How may I help you?",
+      speechRecognition: "en-US",
+      voiceLang: "en-US"
+    });
+    Cinegenius.openChat();
+  </script> {% endcomment %}
   {% comment %} <script defer src="{% static 'js/dj-select2.js' %}"></script> {% endcomment %}
   {% comment %} <script>
     $(document).ready(function() {
@@ -124,6 +137,9 @@
               </li>
               <li class="nav-item">
                 <a class="nav-link" href="{% url 'movie:movie-dnn-ratings-pred-list' %}">Deep Neural Network</a>
+              </li>
+              <li class="nav-item">
+                <p>chat</p>
               </li>
               <li class="nav-item">
                 <a class="nav-link"
@@ -190,14 +206,18 @@
 </body>
 <footer class="footer text-center">
   <div class="container">
-    {% if request.user.is_authenticated %}
+    {% comment %} {% if request.user.is_authenticated %}
       {% include 'chat/partials/chat_bubble.html'%}
-    {% endif %}
+    {% endif %} {% endcomment %}
   </div>
-  <!-- Copyright Section-->
+    <!-- Copyright Section-->
   <div class="copyright py-4 text-center text-black">
     {% now "Y" as current_year %}
     <div class="container"><small> Copyright © <a class="pr-0" href = "https://www.liverpool.ac.uk/" target="_blank">Gauri Mahangare </a>: {{current_year}}</small></div>
   </div>
+<div id="rasa-chat-widget" data-websocket-url="http://localhost:5005/socket.io"
+  data-initial-payload="Hi, I am Cinegenius. How may I help you?"></div>
+<script src="https://unpkg.com/@rasahq/rasa-chat" type="application/javascript"></script>
+  </script>
 </footer>
 </html>
