@@ -38,7 +38,7 @@ function getBotResponse(text) {
  * for more info: `https://rasa.com/docs/rasa/connectors/your-own-website#request-and-response-format`
  */
 function setBotResponse(response) {
-  // renders bot response after 1200 milliseconds
+  // renders bot response after 5000 milliseconds
   setTimeout(() => {
     hideBotTyping();
     if (response.length < 1) {

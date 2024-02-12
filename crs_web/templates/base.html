@@ -204,9 +204,10 @@
     {% endblock content %}
   </div>
   <!-- /container -->
-  {% block modal %}
+  {% if request.user.is_authenticated %}
+    {% block modal %}
         <!--chatbot widget -->
-        <div class="widget">
+        <div class="widget" id="user-id" data-user-id="{{ request.user.pk }}">
           <div class="chat_header">
             <!--Add the name of the bot here -->
             <span class="chat_header_title"> Cinegenius Bot</span>
@@ -250,13 +251,13 @@
           <div class="tap-target-content">
             <h5 class="white-text">Hey there 👋</h5>
             <p class="white-text">
-              I can help you get started with Rasa and answer your technical
-              questions.
+              I can help you to find movies to watch..
             </p>
           </div>
         </div>
       </div>
-  {% endblock modal %}
+    {% endblock modal %}
+  {% endif %}
   {% block inline_javascript %}
 
     {% comment %} Script tags with only code, no src (defer by default). To run
