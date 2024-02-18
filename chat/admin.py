@@ -1,12 +1,12 @@
 from django.contrib import admin
-from import_export.admin import ImportExportMixin
+# from import_export.admin import ImportExportMixin
 # Register your models here.
 from .models import Message, Conversation, MessageFlow
 
 # Register your models here.
 
 
-class MessageAdmin(ImportExportMixin, admin.ModelAdmin):
+class MessageAdmin(admin.ModelAdmin):
     date_hierarchy = "created_at"
 
     # to filter the resultes by users, content types and action flags
@@ -40,7 +40,7 @@ class MessageAdmin(ImportExportMixin, admin.ModelAdmin):
 admin.site.register(Message, MessageAdmin)
 
 
-class ConversationAdmin(ImportExportMixin, admin.ModelAdmin):
+class ConversationAdmin(admin.ModelAdmin):
     date_hierarchy = "created_at"
 
     # to filter the resultes by users, content types and action flags
@@ -69,7 +69,7 @@ class ConversationAdmin(ImportExportMixin, admin.ModelAdmin):
 admin.site.register(Conversation, ConversationAdmin)
 
 
-class MessageFlowAdmin(ImportExportMixin, admin.ModelAdmin):
+class MessageFlowAdmin(admin.ModelAdmin):
     date_hierarchy = "created_at"
 
 

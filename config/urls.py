@@ -28,7 +28,7 @@ urlpatterns = [
     path("entity/", include("entity.urls")),
     path("intent/", include("intent.urls")),
     path("movie/", include("movies.urls")),
-    path("select2/", include("django_select2.urls")),
+    # path("select2/", include("django_select2.urls")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 if settings.DEBUG:
     # Static file serving when using Gunicorn + Uvicorn for local web socket development

@@ -1,12 +1,12 @@
 from django.contrib import admin
-from import_export.admin import ImportExportMixin
+# from import_export.admin import ImportExportMixin
 
 from entity.models import Entity, EntityTypes
 
 # Register your models here.
 
 
-class EntityTypesAdmin(ImportExportMixin, admin.ModelAdmin):
+class EntityTypesAdmin(admin.ModelAdmin):
     date_hierarchy = "created_at"
     # to filter the resultes by users, content types and action flags
     list_filter = [
@@ -31,7 +31,7 @@ class EntityTypesAdmin(ImportExportMixin, admin.ModelAdmin):
 admin.site.register(EntityTypes, EntityTypesAdmin)
 
 
-class EntityAdmin(ImportExportMixin, admin.ModelAdmin):
+class EntityAdmin(admin.ModelAdmin):
     date_hierarchy = "created_at"
     list_display = [
         "name",

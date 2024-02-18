@@ -1,10 +1,10 @@
 from django.contrib import admin
-from import_export.admin import ImportExportMixin
+# from import_export.admin import ImportExportMixin
 from intent.models import Event, ResponseText, IntentEventAction, Intent, IntentExample, IntentResponseEvent
 # Register your models here.
 
 
-class EventAdmin(ImportExportMixin, admin.ModelAdmin):
+class EventAdmin(admin.ModelAdmin):
     date_hierarchy = "created_at"
     list_display = [
         "name",
@@ -17,12 +17,12 @@ class EventAdmin(ImportExportMixin, admin.ModelAdmin):
 admin.site.register(Event, EventAdmin)
 
 
-class InlineResponseText(ImportExportMixin, admin.TabularInline):
+class InlineResponseText(admin.TabularInline):
     model = ResponseText
     extra = 1
 
 
-class IntentEventActionAdmin(ImportExportMixin, admin.ModelAdmin):
+class IntentEventActionAdmin(admin.ModelAdmin):
     date_hierarchy = "created_at"
     inlines = [InlineResponseText]
     save_as = True
@@ -37,17 +37,17 @@ class IntentEventActionAdmin(ImportExportMixin, admin.ModelAdmin):
 admin.site.register(IntentEventAction, IntentEventActionAdmin)
 
 
-class InlineIntentExample(ImportExportMixin, admin.TabularInline):
+class InlineIntentExample(admin.TabularInline):
     model = IntentExample
     extra = 1
 
 
-class InlineIntentResponseEvent(ImportExportMixin, admin.TabularInline):
+class InlineIntentResponseEvent(admin.TabularInline):
     model = IntentResponseEvent
     extra = 1
 
 
-class IntentAdmin(ImportExportMixin, admin.ModelAdmin):
+class IntentAdmin(admin.ModelAdmin):
     date_hierarchy = "created_at"
     inlines = [InlineIntentExample, InlineIntentResponseEvent]
     list_display = [

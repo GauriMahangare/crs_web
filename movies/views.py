@@ -15,68 +15,71 @@ from django.http import HttpResponseBadRequest, JsonResponse
 
 from . import forms, models
 from django import forms
-from django_select2 import forms as s2forms
+# from django_select2 import forms as s2forms
 import pickle
 import pandas as pd
 import numpy as np
+import tensorflow as tf
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 import re
-import tensorflow as tf
 
+tf.saved_model.LoadOptions(
+    allow_partial_checkpoint=False,
+    experimental_io_device='/job:localhost',
+    experimental_skip_checkpoint=False,
+)
 
 logger = logging.getLogger(__name__)
 User = get_user_model()
 # Models for content filtering based on cosine similarity
 similarity = pickle.load(
-    open("/Users/gauridhumal/Development Projects/UOL-PROJECTs/CRS/DS/crs_ds/models/content_filtering/cosine_similarity.pkl", 'rb'))
+    open("/Users/gauridhumal/Development Projects/UOL-PROJECTs/CRS/crs_ds/models/content_filtering/cosine_similarity.pkl", 'rb'))
 movie_tag_df = pickle.load(
-    open("/Users/gauridhumal/Development Projects/UOL-PROJECTs/CRS/DS/crs_ds/models/content_filtering/movies.pkl", 'rb'))
+    open("/Users/gauridhumal/Development Projects/UOL-PROJECTs/CRS/crs_ds/models/content_filtering/movies.pkl", 'rb'))
 # Models for content filtering for top trending movies
 top_trending_movies_df = pd.read_csv(open(
-    "/Users/gauridhumal/Development Projects/UOL-PROJECTs/CRS/DS/crs_ds/data/processed/outputs/top_trending_content.csv", 'r'))
+    "/Users/gauridhumal/Development Projects/UOL-PROJECTs/CRS/crs_ds/data/processed/outputs/top_trending_content.csv", 'r'))
 genres_df = pd.read_csv(open(
-    "/Users/gauridhumal/Development Projects/UOL-PROJECTs/CRS/DS/crs_ds/data/processed/entity/entity_movie_genres.csv", 'r'))
+    "/Users/gauridhumal/Development Projects/UOL-PROJECTs/CRS/crs_ds/data/processed/entity/entity_movie_genres.csv", 'r'))
 # Models for collaborative filtering item-item similarity
-collab_similarity = pd.read_pickle(
-    open("/Users/gauridhumal/Development Projects/UOL-PROJECTs/CRS/DS/crs_ds/models/collab_filtering_item_item_similarity/collab_similarity.pkl", 'rb'))
-collab_ratings_pt_indexes = pd.read_pickle(
-    open("/Users/gauridhumal/Development Projects/UOL-PROJECTs/CRS/DS/crs_ds/models/collab_filtering_item_item_similarity/collab_ratings_pt_indexes.pkl", 'rb'))
-collab_ratings_pt = pd.read_pickle(
-    open("/Users/gauridhumal/Development Projects/UOL-PROJECTs/CRS/DS/crs_ds/models/collab_filtering_item_item_similarity/collab_ratings_pt.pkl", 'rb'))
+# collab_similarity = pd.read_pickle(
+#     open("/Users/gauridhumal/Development Projects/UOL-PROJECTs/CRS/crs_ds/models/collab_filtering_item_item_similarity/collab_similarity.pkl", 'rb'))
+# collab_ratings_pt_indexes = pd.read_pickle(
+#     open("/Users/gauridhumal/Development Projects/UOL-PROJECTs/CRS/crs_ds/models/collab_filtering_item_item_similarity/collab_ratings_pt_indexes.pkl", 'rb'))
+# collab_ratings_pt = pd.read_pickle(
+#     open("/Users/gauridhumal/Development Projects/UOL-PROJECTs/CRS/crs_ds/models/collab_filtering_item_item_similarity/collab_ratings_pt.pkl", 'rb'))
 movie_list_full_df = pd.read_csv(open(
-    "/Users/gauridhumal/Development Projects/UOL-PROJECTs/CRS/DS/crs_ds/data/processed/movieLense/movies_combined_cleaned_title.csv", 'r'))
+    "/Users/gauridhumal/Development Projects/UOL-PROJECTs/CRS/crs_ds/data/processed/movieLense/movies_combined_cleaned_title.csv", 'r'))
 
-# Models for collaborative filtering user-user similarity
-collab_u2u_similarity = pd.read_pickle(
-    open("/Users/gauridhumal/Development Projects/UOL-PROJECTs/CRS/DS/crs_ds/models/collab_filtering_user_user_similarity/collab_similarity.pkl", 'rb'))
-collab_u2u_ratings_pt = pd.read_pickle(
-    open("/Users/gauridhumal/Development Projects/UOL-PROJECTs/CRS/DS/crs_ds/models/collab_filtering_user_user_similarity/collab_ratings_pt.pkl", 'rb'))
+# # Models for collaborative filtering user-user similarity
+# collab_u2u_similarity = pd.read_pickle(
+#     open("/Users/gauridhumal/Development Projects/UOL-PROJECTs/CRS/crs_ds/models/collab_filtering_user_user_similarity/collab_similarity.pkl", 'rb'))
+# collab_u2u_ratings_pt = pd.read_pickle(
+#     open("/Users/gauridhumal/Development Projects/UOL-PROJECTs/CRS/crs_ds/models/collab_filtering_user_user_similarity/collab_ratings_pt.pkl", 'rb'))
 users_list_df = pd.read_csv(open(
-    "/Users/gauridhumal/Development Projects/UOL-PROJECTs/CRS/DS/crs_ds/data/processed/movieLense/users.csv", 'r'))
+    "/Users/gauridhumal/Development Projects/UOL-PROJECTs/CRS/crs_ds/data/processed/movieLense/users.csv", 'r'))
 ratings_df = pd.read_csv(open(
-    "/Users/gauridhumal/Development Projects/UOL-PROJECTs/CRS/DS/crs_ds/data/processed/movieLense/ratings_short.csv", 'r'))
+    "/Users/gauridhumal/Development Projects/UOL-PROJECTs/CRS/crs_ds/data/processed/movieLense/ratings_short.csv", 'r'))
 
 # Models for DNN
-# DNN_ratings_model = tf.saved_model.load(
-#     "/Users/gauridhumal/Development Projects/UOL-PROJECTs/CRS/DS/crs_ds/models/DNN_ratings_prediction/")
-DNN_ratings_model = tf.keras.models.load_model(
-    "/Users/gauridhumal/Development Projects/UOL-PROJECTs/CRS/DS/crs_ds/models/DNN_ratings_prediction/cf_dnn_model")
+path = "/Users/gauridhumal/Development Projects/UOL-PROJECTs/CRS/crs_ds/models/DNN_ratings_prediction/cf_dnn_model"
+DNN_ratings_model = tf.keras.models.load_model(path)
 
 DNN_ratings_model_df = pd.read_pickle(
-    open("/Users/gauridhumal/Development Projects/UOL-PROJECTs/CRS/DS/crs_ds/models/DNN_ratings_prediction/dnn_ratings_pred_df.pkl", 'rb'))
+    open("/Users/gauridhumal/Development Projects/UOL-PROJECTs/CRS/crs_ds/models/DNN_ratings_prediction/dnn_ratings_pred_df.pkl", 'rb'))
 DNN_movie2movie_encoded = pd.read_pickle(
-    open("/Users/gauridhumal/Development Projects/UOL-PROJECTs/CRS/DS/crs_ds/models/DNN_ratings_prediction/dnn_movie2movie_encoded.pkl", 'rb'))
+    open("/Users/gauridhumal/Development Projects/UOL-PROJECTs/CRS/crs_ds/models/DNN_ratings_prediction/dnn_movie2movie_encoded.pkl", 'rb'))
 DNN_user2user_encoded = pd.read_pickle(
-    open("/Users/gauridhumal/Development Projects/UOL-PROJECTs/CRS/DS/crs_ds/models/DNN_ratings_prediction/dnn_user2user_encoded.pkl", 'rb'))
+    open("/Users/gauridhumal/Development Projects/UOL-PROJECTs/CRS/crs_ds/models/DNN_ratings_prediction/dnn_user2user_encoded.pkl", 'rb'))
 DNN_movie_encoded2movie = pd.read_pickle(
-    open("/Users/gauridhumal/Development Projects/UOL-PROJECTs/CRS/DS/crs_ds/models/DNN_ratings_prediction/dnn_movie_encoded2movie.pkl", 'rb'))
+    open("/Users/gauridhumal/Development Projects/UOL-PROJECTs/CRS/crs_ds/models/DNN_ratings_prediction/dnn_movie_encoded2movie.pkl", 'rb'))
 
 # models for matrix factorisation
 U_reg = pd.read_pickle(
-    open("/Users/gauridhumal/Development Projects/UOL-PROJECTs/CRS/DS/crs_ds/models/matrix_factorisation/user_embedding.pkl", 'rb'))
+    open("/Users/gauridhumal/Development Projects/UOL-PROJECTs/CRS/crs_ds/models/matrix_factorisation/user_embedding.pkl", 'rb'))
 V_reg = pd.read_pickle(
-    open("/Users/gauridhumal/Development Projects/UOL-PROJECTs/CRS/DS/crs_ds/models/matrix_factorisation/item_embedding.pkl", 'rb'))
+    open("/Users/gauridhumal/Development Projects/UOL-PROJECTs/CRS/crs_ds/models/matrix_factorisation/item_embedding.pkl", 'rb'))
 
 
 def remove_special_characters(text):
@@ -375,87 +378,87 @@ def top_trending_movies(request):
         return JsonResponse({'status': 'Invalid AJAX request'}, status=400)
 
 
-@login_required()
-def collaborative_filtering_i2i_cosine_similarity(request):
-    '''
-    View to handle ajax request to recommend movies based on movie to movies similarity
-    '''
-    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
-    if is_ajax:
-        if request.method == 'POST':
-            data = json.load(request)
-            cleaned_movie = remove_special_characters(data['movieTitle'].lower().strip()).replace(" ", "")
-            index = find_index(cleaned_movie)
-            print(index)
-            if index == None:
-                print("Movie not found in DB - " + cleaned_movie)
-                return None
-            else:
-                # Get the cosine distance of this movie with respect to other movies from similarity matrix computed above
-                distances = collab_similarity[index[0]]
-                similar_items = sorted(list(enumerate(distances)), reverse=True, key=lambda x: x[1])[1:6]
-                movies = []
-                for i in similar_items:
-                    movies.append(collab_ratings_pt.index[i[0]])
-                recom_movie_df = movie_list_full_df[movie_list_full_df['imdb_id'].isin(movies)]
-                m_list = []
-                for index, row in recom_movie_df.iterrows():
-                    new_list = {'imdb_id': row['imdb_id'],
-                                'title': row['title']}
-                    m_list.append(new_list)
-                return JsonResponse({'list': m_list}, status=200)
-        return JsonResponse({'status': 'Invalid request'}, status=400)
-    else:
-        return JsonResponse({'status': 'Invalid AJAX request'}, status=400)
+# @login_required()
+# def collaborative_filtering_i2i_cosine_similarity(request):
+#     '''
+#     View to handle ajax request to recommend movies based on movie to movies similarity
+#     '''
+#     is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+#     if is_ajax:
+#         if request.method == 'POST':
+#             data = json.load(request)
+#             cleaned_movie = remove_special_characters(data['movieTitle'].lower().strip()).replace(" ", "")
+#             index = find_index(cleaned_movie)
+#             print(index)
+#             if index == None:
+#                 print("Movie not found in DB - " + cleaned_movie)
+#                 return None
+#             else:
+#                 # Get the cosine distance of this movie with respect to other movies from similarity matrix computed above
+#                 distances = collab_similarity[index[0]]
+#                 similar_items = sorted(list(enumerate(distances)), reverse=True, key=lambda x: x[1])[1:6]
+#                 movies = []
+#                 for i in similar_items:
+#                     movies.append(collab_ratings_pt.index[i[0]])
+#                 recom_movie_df = movie_list_full_df[movie_list_full_df['imdb_id'].isin(movies)]
+#                 m_list = []
+#                 for index, row in recom_movie_df.iterrows():
+#                     new_list = {'imdb_id': row['imdb_id'],
+#                                 'title': row['title']}
+#                     m_list.append(new_list)
+#                 return JsonResponse({'list': m_list}, status=200)
+#         return JsonResponse({'status': 'Invalid request'}, status=400)
+#     else:
+#         return JsonResponse({'status': 'Invalid AJAX request'}, status=400)
 
 
-@login_required()
-def collaborative_filtering_u2u_cosine_similarity(request):
-    '''
-    View to handle ajax request to recommend movies based on user to user similarity
-    '''
-    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
-    if is_ajax:
-        if request.method == 'POST':
-            data = json.load(request)
-            index = data['user_id']
-            distances = collab_u2u_similarity[index]
-            similar_users = sorted(list(enumerate(distances)), reverse=True, key=lambda x: x[1])[1:30]
-            users = []
-            for u_touple in similar_users:
-                # Append users only if Cosine Similarity > 0.3
-                if u_touple[1] > 0.3:
-                    # print("score - " + str(u_touple[1]))
-                    users.append(u_touple[0])
-            if users == []:
-                print("No users matching with similarity score > 0.3")
-                return JsonResponse({'status': 'No users matching with similarity score > 0.3'}, status=200)
-            else:
-                movies_watched_by_other_similar_users = ratings_df[ratings_df['user_id'].isin(users)]
-                rated_movies = ratings_df[ratings_df.user_id == index]["imdb_id"].values
-                movies_filtered = movies_watched_by_other_similar_users[movies_watched_by_other_similar_users.imdb_id.apply(
-                    lambda imdb_id: imdb_id not in rated_movies)]
-                unique_values_list = movies_filtered['imdb_id'].unique().tolist()[:6]
-                # Movies rated by this user
-                rated_by_user = movie_list_full_df[movie_list_full_df['imdb_id'].isin(rated_movies)].head(10)
-                r_list = []
-                for index, row in rated_by_user.iterrows():
-                    new_list = {'imdb_id': row['imdb_id'],
-                                'title': row['title']}
-                    r_list.append(new_list)
-                print(r_list)
-                # Movies recommended to this user
-                recomm_movies = movie_list_full_df[movie_list_full_df['imdb_id'].isin(unique_values_list)]
-                m_list = []
-                for index, row in recomm_movies.iterrows():
-                    new_list = {'imdb_id': row['imdb_id'],
-                                'title': row['title']}
-                    m_list.append(new_list)
-                print(m_list)
-                return JsonResponse({'recommeded_list': m_list, 'watched_list': r_list}, status=200)
-        return JsonResponse({'status': 'Invalid request'}, status=400)
-    else:
-        return JsonResponse({'status': 'Invalid AJAX request'}, status=400)
+# @login_required()
+# def collaborative_filtering_u2u_cosine_similarity(request):
+#     '''
+#     View to handle ajax request to recommend movies based on user to user similarity
+#     '''
+#     is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+#     if is_ajax:
+#         if request.method == 'POST':
+#             data = json.load(request)
+#             index = data['user_id']
+#             distances = collab_u2u_similarity[index]
+#             similar_users = sorted(list(enumerate(distances)), reverse=True, key=lambda x: x[1])[1:30]
+#             users = []
+#             for u_touple in similar_users:
+#                 # Append users only if Cosine Similarity > 0.3
+#                 if u_touple[1] > 0.3:
+#                     # print("score - " + str(u_touple[1]))
+#                     users.append(u_touple[0])
+#             if users == []:
+#                 print("No users matching with similarity score > 0.3")
+#                 return JsonResponse({'status': 'No users matching with similarity score > 0.3'}, status=200)
+#             else:
+#                 movies_watched_by_other_similar_users = ratings_df[ratings_df['user_id'].isin(users)]
+#                 rated_movies = ratings_df[ratings_df.user_id == index]["imdb_id"].values
+#                 movies_filtered = movies_watched_by_other_similar_users[movies_watched_by_other_similar_users.imdb_id.apply(
+#                     lambda imdb_id: imdb_id not in rated_movies)]
+#                 unique_values_list = movies_filtered['imdb_id'].unique().tolist()[:6]
+#                 # Movies rated by this user
+#                 rated_by_user = movie_list_full_df[movie_list_full_df['imdb_id'].isin(rated_movies)].head(10)
+#                 r_list = []
+#                 for index, row in rated_by_user.iterrows():
+#                     new_list = {'imdb_id': row['imdb_id'],
+#                                 'title': row['title']}
+#                     r_list.append(new_list)
+#                 print(r_list)
+#                 # Movies recommended to this user
+#                 recomm_movies = movie_list_full_df[movie_list_full_df['imdb_id'].isin(unique_values_list)]
+#                 m_list = []
+#                 for index, row in recomm_movies.iterrows():
+#                     new_list = {'imdb_id': row['imdb_id'],
+#                                 'title': row['title']}
+#                     m_list.append(new_list)
+#                 print(m_list)
+#                 return JsonResponse({'recommeded_list': m_list, 'watched_list': r_list}, status=200)
+#         return JsonResponse({'status': 'Invalid request'}, status=400)
+#     else:
+#         return JsonResponse({'status': 'Invalid AJAX request'}, status=400)
 
 
 @login_required()

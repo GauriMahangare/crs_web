@@ -10,7 +10,7 @@ body {
   display: none;
   width: 700px;
   right: 15px;
-  height: 500px;
+  height: 800px;
   bottom: 5%;
   position: fixed;
   background: #fff;
@@ -35,7 +35,7 @@ body {
 
 .chats {
   /* display: none; */
-  height: 385px;
+  height: 690px;
   padding: 2px;
   border-radius: 1px;
   overflow-y: scroll;
@@ -245,7 +245,7 @@ blockquote {
   display: none;
   width: 350px;
   right: 15px;
-  height: 500px;
+  height: 800px;
   bottom: 5%;
   position: fixed;
   background: white;

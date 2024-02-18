@@ -91,8 +91,8 @@ THIRD_PARTY_APPS = [
     "rest_framework.authtoken",
     "corsheaders",
     "drf_spectacular",
-    "import_export",
-    "django_select2",
+    # "import_export",
+    # "django_select2",
 ]
 
 LOCAL_APPS = [
