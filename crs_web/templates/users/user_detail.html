@@ -25,8 +25,9 @@
     <!-- Action buttons -->
     <div class="row">
       <div class="col-sm-12">
-        <a class="btn btn-primary" href="{% url 'users:update' %}" role="button">My Profile</a>
-        <a class="btn btn-primary"
+        <a class="btn btn-primary" href="{% url 'users:update' %}" role="button">My Details</a>
+        <a class="btn btn-secondary" href="{% url 'users:profile_update' %}" role="button">My Profile</a>
+        <a class="btn btn-warning"
            href="{% url 'account_email' %}"
            role="button">E-Mail</a>
         <!-- Your Stuff: Custom user template urls -->
